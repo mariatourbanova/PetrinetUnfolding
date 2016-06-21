@@ -213,34 +213,26 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(bpmnoriginal);
 		 
 		for( Transition t: map.getCutoff()){
-			//prendo l'elenco dei BPMN corrispondenti ai cutoff (corrispondenza 1 a 1?)
 			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
-			if (bpnode != null){
-			getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.STROKECOLOR, Color.BLUE);}
+			if (bpnode != null){		
+				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, Color.BLUE);}
 			else System.out.println("vuoto");
-			
-		}
-		for( Transition t: map.getDeadlock()){
-			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
-			if (bpnode != null){
-				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.STROKECOLOR, Color.RED);}
-				else System.out.println("vuoto");
-				
 			
 		}
 
 		for( Transition t: map.getCutoffUnbounded()){
 			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
-			if(bpnode!=null){
-				Set<BPMNNode> E = bpmncopia.getNodes();
-				for (BPMNNode d:E){
-					if (d.equals(bpnode)){
-						d.getAttributeMap().put(AttributeMap.STROKECOLOR, Color.BLUE);
-					}
-				}
-			}
+			if (bpnode != null){
+			getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, Color.BLUE);}
+			else System.out.println("vuoto");
 		}
 
+		for( Transition t: map.getDeadlock()){
+			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
+			if (bpnode != null){
+				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, Color.RED);}
+				else System.out.println("vuoto");			
+		}
 
 		return bpmncopia;
 	
