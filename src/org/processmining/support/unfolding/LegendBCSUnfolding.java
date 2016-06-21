@@ -82,21 +82,31 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         /* Riga punti di cutoff */
         layout.insertRow(row, 0.2);
         layout.insertRow(row, TableLayout.PREFERRED);
-        JPanel greenPanel = new JPanel();
-        greenPanel.setBackground(Color.BLUE);
-        legendPanel.add(greenPanel, "0," + row + ",r, c");
-        JLabel syncLbl = factory.createLabel(" Points of Cutoff");
-        syncLbl.setForeground(Color.WHITE);
-        legendPanel.add(syncLbl, "1," + row++ + ",l, c");
+        JPanel bluePanel = new JPanel();
+        bluePanel.setBackground(Color.BLUE);
+        legendPanel.add(bluePanel, "0," + row + ",r, c");
+        JLabel lb1 = factory.createLabel(" Points of Cutoff");
+        lb1.setForeground(Color.WHITE);
+        legendPanel.add(lb1, "1," + row++ + ",l, c");
 
         /* Riga punti di deadlock */
         layout.insertRow(row, TableLayout.PREFERRED);
-        JPanel yellowPanel = new JPanel();
-        yellowPanel.setBackground(Color.RED);
-        legendPanel.add(yellowPanel, "0," + row + ",r, c");
-        JLabel moveLogLbl = factory.createLabel(" Points of Deadlock");
-        moveLogLbl.setForeground(Color.WHITE);
-        legendPanel.add(moveLogLbl, "1," + row++ + ",l, c");
+        JPanel redPanel = new JPanel();
+        redPanel.setBackground(Color.RED);
+        legendPanel.add(redPanel, "0," + row + ",r, c");
+        JLabel lb2 = factory.createLabel(" Points of Deadlock");
+        lb2.setForeground(Color.WHITE);
+        legendPanel.add(lb2, "1," + row++ + ",l, c");
+
+        /* Riga punti di cutoff e deadlock*/
+        layout.insertRow(row, TableLayout.PREFERRED);
+        JPanel violetPanel = new JPanel();
+        Color violet = new Color(138,43,226);
+        violetPanel.setBackground(violet);
+        legendPanel.add(violetPanel, "0," + row + ",r, c");
+        JLabel lb3 = factory.createLabel(" Points of Cutoff and deadlock");
+        lb3.setForeground(Color.WHITE);
+        legendPanel.add(lb3, "1," + row++ + ",l, c");
 
         /* Riga vuota */
         layout.insertRow(row, 0.2);
