@@ -60,6 +60,7 @@ public class BCSUnfolding
 	/* Mappa i livelock e deadlock e altre statistiche */
 	protected StatisticMap statisticMap = new StatisticMap();
 
+
 	/**
 	 * Costruttore
 	 * 

@@ -28,28 +28,24 @@ import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
-import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
 import org.processmining.support.unfolding.LegendBCSUnfolding;
-import org.processmining.support.unfolding.StatisticMap;
 import org.processmining.support.unfolding.StatisticMap;
 
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstants;
-import javassist.bytecode.Descriptor.Iterator;
 
 
 public class MyBCSUnfoldingVisualizePlugin {
 
 	private StatisticMap output;
-
+	private StatisticMap statBPMN;
 	private UIPluginContext context;
 	private InfoConversionBP2PN info = null;
 	private BPMNDiagram bpmn= null;
 	private Petrinet unfolding = null;
 	private JPanel panel;
 	private Map<PetrinetNodeMod,BPMNNode> reverseMap;
-//	class summary = new int[4];
-	
+
 	@Plugin
 	(
 			name = "Updated Visualization BCS Unfolding Statistics", 
@@ -72,6 +68,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 		Petrinet petrinet;
 		this.output = output;
 		this.context = context;
+		this.statBPMN = output;
 		reverseMap = output.getReverseMap();
 		try 
 		{	
@@ -88,7 +85,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 			}
 
 		repaint(new ArrayList<PetrinetNode>(), true);
-		} 
+		 } 
 		catch (Exception e) 
 		{
 			e.printStackTrace();
@@ -100,20 +97,21 @@ public class MyBCSUnfoldingVisualizePlugin {
 		try{
 			double size [] [] = {{TableLayoutConstants.FILL} , {TableLayoutConstants.FILL,TableLayoutConstants.FILL}};
 			panel.setLayout(new TableLayout(size));
+			BPMNDiagram bpmncopia= insertDefect(bpmn,output);
 
-			BPMNDiagram bpmncopia;
-			bpmncopia= insertDefect(bpmn,output);
-			/*
-			if(collection!=null)
-				if(collection.isEmpty())
-					bpmnw = insertDefect(bpmn,output, info);
-			*/
+			/*Costruisco le statistiche del BPMN graph*/
+			statBPMN.setStatistic(bpmn);
 			
 			/*Costruisco il pannello del BPMN e il ViewInteraction Panel della legenda*/
 			ProMJGraphPanel bpmnPanel = ProMJGraphVisualizer.instance().visualizeGraph(context,bpmncopia);
 			LegendBCSUnfolding legendPanelB = new LegendBCSUnfolding(bpmnPanel, "Legend");
 			bpmnPanel.addViewInteractionPanel(legendPanelB, SwingConstants.EAST);
 			panel.add(bpmnPanel, "0,0");
+
+			StringPanel sp1 = new StringPanel(bpmnPanel, "Statistic BPMN", statBPMN.getBPMNStatistic());
+			bpmnPanel.addViewInteractionPanel(sp1, SwingConstants.SOUTH);
+			panel.revalidate();
+			panel.repaint();
 			
 			/*Sostituire la history con la localConfiguration*/
 			//HistoryUnfolding hu = new HistoryUnfolding(unfolding);
@@ -150,35 +148,9 @@ public class MyBCSUnfoldingVisualizePlugin {
 		BPMNNode nod = null;
 		PetrinetNodeMod pnm = new PetrinetNodeMod(pn);
 		if(reverseMap.containsKey(pnm)){
-			
 				System.out.println("ReverseMap contiene pn"); 
-				nod = reverseMap.get(pnm);
-				
-			
-			
-		}
-		
-		/*for (PetrinetNode element : reverseMap.keySet()) {
-			if (confrontoPetrinetNode(element,pn)) 
-			{
-				System.out.println("ReverseMap contiene pn"); 
-				nod = reverseMap.get(element);
-				break;
-			}
-			else System.out.println("Elementi Diversi");
-		}*/
-		
-		
-	/*	java.util.Iterator<Entry<PetrinetNode, BPMNNode>> it = reverseMap.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<PetrinetNode,BPMNNode> entry = it.next();
-			if (confrontoPetrinetNode(entry.getKey(),pn)) 
-				{
-					System.out.println("ReverseMap contiene pn"); 
-					nod = entry.getValue();
-				}
-			else System.out.println("Elementi Diversi");
-		}	*/
+				nod = reverseMap.get(pnm);	
+		}		
 		return nod;
 	}
 	

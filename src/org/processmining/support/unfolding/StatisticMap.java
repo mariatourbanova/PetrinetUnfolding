@@ -7,7 +7,8 @@ package org.processmining.support.unfolding;
 	import java.util.Map;
 
 	import org.processmining.models.graphbased.AttributeMap;
-	import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
+import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 	import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 	import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 	import org.processmining.models.graphbased.directed.petrinet.elements.Place;
@@ -38,6 +39,10 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 		private boolean isSound, isWeakSound;
 		private double startTime = System.currentTimeMillis(), time = 0;
 		private Map<PetrinetNodeMod,BPMNNode> reverseMap = new HashMap<PetrinetNodeMod,BPMNNode>();
+		
+		/* Variabili utilizzate per le statistiche del BPMN graph*/  
+		private int nArcsBPMN = 0, nGateway = 0, nActivity = 0,
+				nEvents = 0, nMessageFlow = 0, nPool =0;
 
 		/**
 		 * Costruttore
@@ -403,6 +408,121 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 			return out;
 		}
 		
+		/**
+		 * Crea le statistiche della rete
+		 * 
+		 * @param N rete di petri
+		 * @param N1 rete di unfolding
+		 * @param L1 mappa da N a N' 
+		 */
+		public void setStatistic(BPMNDiagram bpmn)//, Petrinet N1, HashMap<PetrinetNode, ArrayList<PetrinetNode>> L1)
+		{
+			/* Statistiche della rete */
+			nArcs = bpmn.getEdges().size(); 
+			nGateway = bpmn.getGateways().size(); 
+			nActivity = bpmn.getActivities().size();
+			
+			nEvents = bpmn.getEvents().size(); 
+			nMessageFlow = bpmn.getMessageFlows().size(); 
+			nPool = bpmn.getPools().size();
+			
+			/* Verifico le soundness */
+			isSound = get(CUTOFF_UNBOUNDED).isEmpty() && get(DEADLOCK).isEmpty() && get(DEAD).isEmpty();	
+			isWeakSound = get(CUTOFF_UNBOUNDED).isEmpty() && get(DEADLOCK).isEmpty();
+			
+			/* Calcolo il tempo del plugin */
+			time = (System.currentTimeMillis() - startTime) ;
+		}
+		
+		/**
+		 * Carico tutte le statistiche della rete in una stringa html
+		 * 
+		 * @return le statistiche della rete
+		 */
+		public String getBPMNStatistic()
+		{
+			String out = "<html><h1 style=\"color:red;\">Diagnosis on BPMN graph</h1>";
+			
+			/* Tempo di esecuzione del plugin */
+			out += "<BR>Runtime of the plugin: " + time + "<BR><BR>";
+			
+			
+			/* Carico i livelock e deadlock */
+			for(String key: keySet())
+			{
+				switch(key)
+				{
+					case CUTOFF:
+					{
+						if(get(key).isEmpty())
+							out += "The graph does not contain the cutoff points<BR><BR>";
+						else
+						{
+							out += "The graph contains " + get(key).size() + " cutoff points:<ol>";
+							for(Transition t: get(key))
+								if (!t.getLabel().equals("reset")){
+								out += "<li>" + t.getLabel() + "</li>";
+							out += "</ol><BR>";}
+						}
+						break;
+					}
+					case CUTOFF_UNBOUNDED:
+					{
+						if(get(key).isEmpty())
+							out += "The graph does not contain the cutoff points that make the unbounded graph<BR><BR>";
+						else
+						{
+							out += "The graph contains " + get(key).size() + " cutoff points that make the unbounded graph:<ol>";
+							for(Transition t: get(key))
+								out += "<li>" + t.getLabel() + "</li>";
+							out += "</ol><BR>";
+						}
+						break;
+					}
+					case DEADLOCK:
+					{
+						if(get(key).isEmpty())
+							out += "The graph does not contain the deadlock points<BR><BR>";
+						else
+						{
+							out += "The graph contains " + get(key).size() + " deadlock points:<ol>";
+							for(Transition t: get(key))
+								out += "<li>" + t.getLabel() + "</li>";
+							out += "</ol><BR>";
+						}
+						break;
+					}
+					case DEAD:
+					{
+						if(get(key).isEmpty())
+							out += "The graph does not contain the dead transitions<BR><BR>";
+						else
+						{
+							out += "The graph contains " + get(key).size() + " dead transitions:<ol>";
+							for(Transition t: get(key))
+								if (!t.getLabel().equals("reset")){
+								out += "<li>" + t.getLabel() + "</li>";
+							out += "</ol><BR>";}
+						}
+						break;
+					}
+				}
+			}
+			
+			/* Carico le altre statistiche della rete */
+			out += "<h2>Other statistics:</h2><ul type=\"disc\">";			
+			out += "<li>Number of arcs: " + nArcs + "</li>";
+			out += "<li>Number of gateway: " + nGateway + "</li>";
+			out += "<li>Number of activity: " + nActivity + "</li>";
+			out += "<li>Number of events: " + nEvents + "</li>";
+			out += "<li>Number of message flow: " + nMessageFlow + "</li>";
+			out += "<li>Number of pool: " + nPool + "</li>";
+			out += "<li>Soundness: " + isSound + "</li>";
+			out += "<li>Weak soundness: " + isWeakSound + "</li></ul></html>";
+
+			return out;
+		}
+
 		
 	}
 
