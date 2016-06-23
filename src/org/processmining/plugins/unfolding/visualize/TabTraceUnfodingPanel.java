@@ -1,8 +1,5 @@
 package org.processmining.plugins.unfolding.visualize;
 
-
-
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -54,8 +51,9 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
-import org.processmining.plugins.unfolding.BCSUnfoldingVisualize_Plugin;
 import org.processmining.plugins.unfolding.HistoryUnfolding;
+import org.processmining.plugins.unfolding.MyBCSUnfoldingVisualizePlugin;
+import org.processmining.support.localconfiguration.LocalConfiguration;
 import org.processmining.support.unfolding.StatisticMap;
 
 import com.fluxicon.slickerbox.components.AutoFocusButton;
@@ -82,13 +80,13 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	//private TotalConformanceResult tovisualize;
 	//private HistoryUnfolding historyunf;
 	private ArrayList<Collection<PetrinetNode>> historyPN;
-	private ArrayList<Collection<BPMNNode>> historyBPMN;
+	private ArrayList<Transition> locConf;
 	private  UnfoldingInspectorPanel inspector;
 	private StatisticMap statistiunf;
-	private BCSUnfoldingVisualize_Plugin visualizeUnfoldingStatistics_Plugin;
+	private MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin;
 
 	public TabTraceUnfodingPanel(PluginContext context, ScalableViewPanel panel, String panelName,
-			HistoryUnfolding hu, StatisticMap statistiunf, BCSUnfoldingVisualize_Plugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, InfoConversionBP2PN info){
+			HistoryUnfolding hu, StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, InfoConversionBP2PN info){
 		super(new BorderLayout());
 		this.statistiunf = statistiunf;
 		this.visualizeUnfoldingStatistics_Plugin = visualizeUnfoldingStatistics_Plugin;
@@ -292,7 +290,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				int row = target.getSelectedRow();
 				int column = target.getSelectedColumn();
 				visualizeUnfoldingStatistics_Plugin.repaint(historyPN.get(row),false);
-
 			}
 		});
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
@@ -390,6 +387,11 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	}
 
 	public void mouseClicked(MouseEvent e) {
+		JTable target = (JTable)e.getSource();
+		int row = target.getSelectedRow();
+		int column = target.getSelectedColumn();
+		visualizeUnfoldingStatistics_Plugin.repaint(historyPN.get(row),false);
+
 	}
 
 	public void mouseEntered(MouseEvent e) {

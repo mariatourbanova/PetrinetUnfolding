@@ -4,13 +4,10 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import org.processmining.contexts.uitopia.UIPluginContext;
@@ -28,6 +25,7 @@ import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
+import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
 import org.processmining.support.unfolding.LegendBCSUnfolding;
 import org.processmining.support.unfolding.StatisticMap;
 
@@ -93,6 +91,11 @@ public class MyBCSUnfoldingVisualizePlugin {
 		return panel;
 	}
 	
+	public void paintConfiguration(ArrayList<Transition> localConf){
+		
+	}
+	
+	
 	public void repaint(Collection<PetrinetNode> collection, boolean flag) {
 		try{
 			double size [] [] = {{TableLayoutConstants.FILL} , {TableLayoutConstants.FILL,TableLayoutConstants.FILL}};
@@ -114,14 +117,14 @@ public class MyBCSUnfoldingVisualizePlugin {
 			panel.repaint();
 			
 			/*Sostituire la history con la localConfiguration*/
-			//HistoryUnfolding hu = new HistoryUnfolding(unfolding);
+			HistoryUnfolding hu = new HistoryUnfolding(unfolding);
 
 			/*costruzione del widget inspector*/
-			/*
+			
 			if(flag){
 				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding", hu, output, this, bpmn, info);
 			}
-			*/
+			
 			/*Costruisco il pannello dell'Unfolding*/
 			ProMJGraphPanel unfoldingPanel = ProMJGraphVisualizer.instance().visualizeGraph(context, unfolding);
 			LegendBCSUnfolding legendPanelP = new LegendBCSUnfolding(unfoldingPanel, "Legend");
@@ -139,21 +142,6 @@ public class MyBCSUnfoldingVisualizePlugin {
 		}
 
 	}
-/**
- * Ritorna il BPMNNode corrispondente al PetriNode
- * @param PetriNode pn
- * @return BPMNNode
- */
-	public BPMNNode getBPMNNodeFromReverseMap(PetrinetNode pn){
-		BPMNNode nod = null;
-		PetrinetNodeMod pnm = new PetrinetNodeMod(pn);
-		if(reverseMap.containsKey(pnm)){
-				System.out.println("ReverseMap contiene pn"); 
-				nod = reverseMap.get(pnm);	
-		}		
-		return nod;
-	}
-	
 	private boolean confrontoPetrinetNode(PetrinetNode petrinetNode, PetrinetNode pn){
 		if ((petrinetNode.getLabel()).equals(pn.getLabel())) return true;
 		return false;
@@ -185,7 +173,7 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(bpmnoriginal);
 		 
 		for( Transition t: map.getCutoff()){
-			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
+			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){		
 				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, Color.BLUE);}
 			else System.out.println("vuoto");
@@ -193,17 +181,29 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		}
 
 		for( Transition t: map.getCutoffUnbounded()){
-			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
+			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){
 			getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, Color.BLUE);}
 			else System.out.println("vuoto");
 		}
 
 		for( Transition t: map.getDeadlock()){
-			BPMNNode bpnode = getBPMNNodeFromReverseMap(t);
+			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){
-				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, Color.RED);}
-				else System.out.println("vuoto");			
+				BPMNNode bpnod = getNodeinClone(bpmncopia,bpnode);
+				Color colo = (Color) bpnod.getAttributeMap().get(AttributeMap.FILLCOLOR);
+				if(colo.equals(Color.BLUE)){
+					Color violet = new Color(138,43,226);
+					bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, violet);
+					
+				}else
+					bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.RED);
+				
+				System.out.println("vuoto");
+			}
+				
+			
+			else System.out.println("vuoto");			
 		}
 
 		return bpmncopia;

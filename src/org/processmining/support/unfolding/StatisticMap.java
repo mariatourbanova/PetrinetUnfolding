@@ -15,6 +15,7 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 	import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 	import org.processmining.plugins.converters.bpmn2pn.BPMN2WorkflowSystemConverter;
 import org.processmining.plugins.unfolding.PetrinetNodeMod;
+import org.processmining.plugins.unfolding.UtilitiesforMapping;
 
 	/**
 	 * Map contenente le statistiche della rete di unfolding
@@ -418,7 +419,7 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 		public void setStatistic(BPMNDiagram bpmn)//, Petrinet N1, HashMap<PetrinetNode, ArrayList<PetrinetNode>> L1)
 		{
 			/* Statistiche della rete */
-			nArcs = bpmn.getEdges().size(); 
+			nArcsBPMN = bpmn.getEdges().size(); 
 			nGateway = bpmn.getGateways().size(); 
 			nActivity = bpmn.getActivities().size();
 			
@@ -455,14 +456,29 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 					case CUTOFF:
 					{
 						if(get(key).isEmpty())
-							out += "The graph does not contain the cutoff points<BR><BR>";
-						else
-						{
-							out += "The graph contains " + get(key).size() + " cutoff points:<ol>";
+							out += "The graph does not contain cutoff points<BR><BR>";
+						else	{	
+							String temp = "";
+							int element = 0;
 							for(Transition t: get(key))
-								if (!t.getLabel().equals("reset")){
-								out += "<li>" + t.getLabel() + "</li>";
-							out += "</ol><BR>";}
+								if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
+									element++;
+									String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
+									temp += "<li>" + l + "</li>";
+									temp += "</ol><BR>";}							
+							if (element == 0){
+								out += "The graph does not contain cutoff points<BR><BR>";
+							} else {
+							out += "The graph contains " + element + " cutoff points:<ol>";
+							out += temp;
+							}
+							switch(element){
+							case 0:{out += "The graph does not contain cutoff points<BR><BR>"; break;}
+							case 1:{out += "The graph contains " + element + " cutoff point:<ol>"; 
+							out += temp; break;}
+							default:{out += "The graph contains " + element + " cutoff points:<ol>";
+							out += temp; break;}	
+							}
 						}
 						break;
 					}
@@ -471,38 +487,79 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 						if(get(key).isEmpty())
 							out += "The graph does not contain the cutoff points that make the unbounded graph<BR><BR>";
 						else
-						{
-							out += "The graph contains " + get(key).size() + " cutoff points that make the unbounded graph:<ol>";
+						{	
+							String temp = "";
+							int element = 0;
 							for(Transition t: get(key))
-								out += "<li>" + t.getLabel() + "</li>";
-							out += "</ol><BR>";
+								if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
+									element++;
+									String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
+									temp += "<li>" + l + "</li>";
+									temp += "</ol><BR>";}											
+							switch(element){
+							case 0:{out += "The graph does not contain the cutoff points that make the unbounded graph<BR><BR>"; break;}
+							case 1:{out += "The graph contains " + element + " cutoff point that make the unbounded graph:<ol>"; 
+							out += temp; break;}
+							default:{out += "The graph contains " + element + " cutoff points that make the unbounded graph::<ol>";
+							out += temp; break;}	
+							}
+
 						}
 						break;
 					}
+					
 					case DEADLOCK:
 					{
 						if(get(key).isEmpty())
 							out += "The graph does not contain the deadlock points<BR><BR>";
-						else
-						{
-							out += "The graph contains " + get(key).size() + " deadlock points:<ol>";
-							for(Transition t: get(key))
-								out += "<li>" + t.getLabel() + "</li>";
-							out += "</ol><BR>";
+						else	{	
+								String temp = "";
+								int element = 0;
+								for(Transition t: get(key))
+									if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
+										element++;
+										String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
+										temp += "<li>" + l + "</li>";
+										temp += "</ol><BR>";}							
+								switch(element){
+									case 0:{out += "The graph does not contain deadlock points<BR><BR>"; break;}
+									case 1:{out += "The graph contains " + element + " deadlock point:<ol>"; 
+									out += temp; break;}
+									default:{out += "The graph contains " + element + " deadlock points:<ol>";
+									out += temp; break;}	
+									}
+								
 						}
-						break;
+							break;	
 					}
-					case DEAD:
+					
+				case DEAD:
 					{
 						if(get(key).isEmpty())
-							out += "The graph does not contain the dead transitions<BR><BR>";
-						else
-						{
-							out += "The graph contains " + get(key).size() + " dead transitions:<ol>";
+							out += "The graph does not contain dead nodes<BR><BR>";
+						else	{	
+							String temp = "";
+							int element = 0;
 							for(Transition t: get(key))
-								if (!t.getLabel().equals("reset")){
-								out += "<li>" + t.getLabel() + "</li>";
-							out += "</ol><BR>";}
+								if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
+									element++;
+									BPMNNode bnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+									if(bnode!=null){
+										String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
+										temp += "<li>" + l + "</li>";
+										temp += "</ol><BR>";
+										}else{
+										System.out.print("");
+									}
+									temp += "</ol><BR>";}							
+							switch(element){
+							case 0:{out += "The graph does not contain dead nodes<BR><BR>"; break;}
+							case 1:{out += "The graph contains " + element + " dead node:<ol>"; 
+							out += temp; break;}
+							default:{out += "The graph contains " + element + " dead nodes:<ol>";
+							out += temp; break;}	
+							}
+
 						}
 						break;
 					}
@@ -511,7 +568,7 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 			
 			/* Carico le altre statistiche della rete */
 			out += "<h2>Other statistics:</h2><ul type=\"disc\">";			
-			out += "<li>Number of arcs: " + nArcs + "</li>";
+			out += "<li>Number of arcs: " + nArcsBPMN + "</li>";
 			out += "<li>Number of gateway: " + nGateway + "</li>";
 			out += "<li>Number of activity: " + nActivity + "</li>";
 			out += "<li>Number of events: " + nEvents + "</li>";
