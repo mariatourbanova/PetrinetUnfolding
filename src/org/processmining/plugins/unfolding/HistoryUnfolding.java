@@ -1,18 +1,13 @@
 package org.processmining.plugins.unfolding;
 
-import java.awt.Color;
-import java.util.AbstractQueue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.processmining.framework.util.Pair;
-import org.processmining.models.graphbased.AttributeMap;
-import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
@@ -33,7 +28,7 @@ public class HistoryUnfolding {
 	}
 
 	
-
+/*usare la ReverseMap*/
 	private BPMNNode getNodefromTransition( InfoConversionBP2PN info,  Transition t ){
 		Map<BPMNNode, Set<PetrinetNode>> nodemap = info.getNodeMap();
 		for(BPMNNode node :nodemap.keySet()){

@@ -1,8 +1,6 @@
 package org.processmining.plugins.unfolding;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,16 +17,15 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
 import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
+import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.LegendBCSUnfolding;
 import org.processmining.support.unfolding.StatisticMap;
-
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstants;
 
@@ -37,13 +34,19 @@ public class MyBCSUnfoldingVisualizePlugin {
 
 	private StatisticMap output;
 	private StatisticMap statBPMN;
-	private UIPluginContext context;
+	private UIPluginContext context; 
 	private InfoConversionBP2PN info = null;
-	private BPMNDiagram bpmn= null;
+	private static BPMNDiagram bpmn= null;
+	private BPMNDiagram bpmncopia; 
+
+
+	private LocalConfigurationMap local;
+//	private static BPMNDiagram bpmncopia = null;
+	private Petrinet petrinet;
 	private Petrinet unfolding = null;
 	private JPanel panel;
 	private Map<PetrinetNodeMod,BPMNNode> reverseMap;
-
+	
 	@Plugin
 	(
 			name = "Updated Visualization BCS Unfolding Statistics", 
@@ -63,7 +66,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 	public JComponent runUI(UIPluginContext context, StatisticMap output) 
 	{
 		panel = new JPanel();
-		Petrinet petrinet;
+
 		this.output = output;
 		this.context = context;
 		this.statBPMN = output;
@@ -76,13 +79,15 @@ public class MyBCSUnfoldingVisualizePlugin {
 			unfolding = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.UNFOLDING);
 			try{
 				bpmn = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.BPMN);
+				local =unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.LocalConfiguration);
 				info = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.InfoCBP2PN);
 			}catch (Exception e) {
 				bpmn = null;
 				info = null;
 			}
-
-		repaint(new ArrayList<PetrinetNode>(), true);
+			
+			BPMNDiagram bpmncopia= insertDefect(bpmn,output);
+		repaint( true,bpmncopia);
 		 } 
 		catch (Exception e) 
 		{
@@ -91,16 +96,11 @@ public class MyBCSUnfoldingVisualizePlugin {
 		return panel;
 	}
 	
-	public void paintConfiguration(ArrayList<Transition> localConf){
-		
-	}
-	
-	
-	public void repaint(Collection<PetrinetNode> collection, boolean flag) {
+	public void repaint( boolean flag, BPMNDiagram bpmncopia) {
 		try{
 			double size [] [] = {{TableLayoutConstants.FILL} , {TableLayoutConstants.FILL,TableLayoutConstants.FILL}};
 			panel.setLayout(new TableLayout(size));
-			BPMNDiagram bpmncopia= insertDefect(bpmn,output);
+			
 
 			/*Costruisco le statistiche del BPMN graph*/
 			statBPMN.setStatistic(bpmn);
@@ -122,7 +122,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 			/*costruzione del widget inspector*/
 			
 			if(flag){
-				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding", hu, output, this, bpmn, info);
+				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding", hu, output, this, bpmn, info, local);
 			}
 			
 			/*Costruisco il pannello dell'Unfolding*/
@@ -142,17 +142,29 @@ public class MyBCSUnfoldingVisualizePlugin {
 		}
 
 	}
-	private boolean confrontoPetrinetNode(PetrinetNode petrinetNode, PetrinetNode pn){
-		if ((petrinetNode.getLabel()).equals(pn.getLabel())) return true;
-		return false;
+	
+	public BPMNDiagram getBpmncopia() {
+		
+		
+		return insertDefect(bpmn,output);
+	}
+
+
+	public static BPMNDiagram getOriginalBpmn(){
+		return bpmn;
 	}
 	
-	private boolean confrontoBPMNnode(BPMNNode bpmnNode, BPMNNode bn){
-		if ((bpmnNode.getLabel()).equals(bn.getLabel())) return true;
-			return false;
+	public Petrinet getPetriNet(){
+		return petrinet;
 	}
 	
-	private BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
+	private static boolean confrontoBPMNnode(BPMNNode bpmnNode, BPMNNode bn){
+		if (bpmnNode != null && bn != null){
+			if ((bpmnNode.getLabel()).equals(bn.getLabel())) return true;
+		}return false;
+	}
+	
+	public static BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
 		Set<BPMNNode> elenco = bpmn.getNodes();
 		for(BPMNNode nodeclone: elenco){
 			if(nodeclone.getLabel()!=null)
@@ -164,13 +176,9 @@ public class MyBCSUnfoldingVisualizePlugin {
 	}
 
 	
-	BPMNNode getNodefromCopia(BPMNDiagram copia, BPMNNode bpmnnode){
-	return bpmnnode;
-	}
-	
 private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		//Clono il BPMN diagram
-		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(bpmnoriginal);
+		bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(bpmnoriginal);
 		 
 		for( Transition t: map.getCutoff()){
 			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);

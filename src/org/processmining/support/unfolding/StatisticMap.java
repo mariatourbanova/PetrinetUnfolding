@@ -7,15 +7,15 @@ package org.processmining.support.unfolding;
 	import java.util.Map;
 
 	import org.processmining.models.graphbased.AttributeMap;
-import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
-import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
+	import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
+	import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 	import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 	import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 	import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 	import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 	import org.processmining.plugins.converters.bpmn2pn.BPMN2WorkflowSystemConverter;
-import org.processmining.plugins.unfolding.PetrinetNodeMod;
-import org.processmining.plugins.unfolding.UtilitiesforMapping;
+	import org.processmining.plugins.unfolding.PetrinetNodeMod;
+	import org.processmining.plugins.unfolding.UtilitiesforMapping;
 
 	/**
 	 * Map contenente le statistiche della rete di unfolding
@@ -40,7 +40,6 @@ import org.processmining.plugins.unfolding.UtilitiesforMapping;
 		private boolean isSound, isWeakSound;
 		private double startTime = System.currentTimeMillis(), time = 0;
 		private Map<PetrinetNodeMod,BPMNNode> reverseMap = new HashMap<PetrinetNodeMod,BPMNNode>();
-		
 		/* Variabili utilizzate per le statistiche del BPMN graph*/  
 		private int nArcsBPMN = 0, nGateway = 0, nActivity = 0,
 				nEvents = 0, nMessageFlow = 0, nPool =0;

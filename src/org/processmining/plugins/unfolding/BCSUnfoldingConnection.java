@@ -4,6 +4,7 @@ import org.processmining.framework.connections.impl.AbstractStrongReferencingCon
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
+import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.StatisticMap;
 
 /**
@@ -18,6 +19,7 @@ public class BCSUnfoldingConnection extends AbstractStrongReferencingConnection
 	public static String UNFOLDING = "UNFOLDING";
 	public static String BPMN = "BPMN";
 	public static String InfoCBP2PN = "INFOCONVERSION";
+	public static String LocalConfiguration = "LOCALCONFIGURATION";
 
 	/**
 	 * Inserimento delle reti di petri nel connettore
@@ -34,7 +36,7 @@ public class BCSUnfoldingConnection extends AbstractStrongReferencingConnection
 		putStrong(UNFOLDING, unfolding);	
 	}
 	
-	public BCSUnfoldingConnection(StatisticMap identificationMap, Petrinet petrinet, Petrinet unfolding, InfoConversionBP2PN info, BPMNDiagram bpmn) 
+	public BCSUnfoldingConnection(StatisticMap identificationMap, Petrinet petrinet, Petrinet unfolding, InfoConversionBP2PN info, BPMNDiagram bpmn, LocalConfigurationMap local) 
 	{
 		super("UnfoldingConnection");
 		putStrong(IDENTIFICATION_MAP, identificationMap);
@@ -42,6 +44,7 @@ public class BCSUnfoldingConnection extends AbstractStrongReferencingConnection
 		putStrong(UNFOLDING, unfolding);
 		putStrong(BPMN, bpmn);
 		putStrong(InfoCBP2PN, info);
+		putStrong(LocalConfiguration, local);
 		
 	}
 }

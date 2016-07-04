@@ -1,14 +1,12 @@
 package org.processmining.plugins.unfolding;
 
+
 import java.util.Map;
 
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 
-public class UtilitiesforMapping {
-	
-	
-	
+public class UtilitiesforMapping {	
 	
 	/**
 	 * Ritorna il BPMNNode corrispondente al PetriNode
@@ -19,10 +17,10 @@ public class UtilitiesforMapping {
 			BPMNNode nod = null;
 			PetrinetNodeMod pnm = new PetrinetNodeMod(pn);
 			if(reverseMap.containsKey(pnm)){
-					System.out.println("ReverseMap contiene pn"); 
 					nod = reverseMap.get(pnm);	
-			}		
+			} else 		System.out.println("non trovo pn"); 
 			return nod;
 		}
 
 }
+

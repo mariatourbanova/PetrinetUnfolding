@@ -478,6 +478,12 @@ public class BCSUnfolding
 		}
 	}
 
+	
+	
+	public LocalConfigurationMap getLocalConfigurationMap() {
+		return localConfigurationMap;
+	}
+
 	/**
 	 * Scrive un messaggio di log e incrementa la barra progressiva
 	 * 

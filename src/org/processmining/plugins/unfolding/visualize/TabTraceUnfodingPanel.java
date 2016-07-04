@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,8 +12,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-import java.util.Collection;
-
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,37 +24,25 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.text.AbstractDocument.Content;
-
-import org.deckfour.xes.info.XLogInfo;
-import org.deckfour.xes.info.XLogInfoFactory;
-import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.ui.scalableview.ScalableComponent;
 import org.processmining.framework.util.ui.scalableview.ScalableViewPanel;
 import org.processmining.framework.util.ui.scalableview.interaction.ViewInteractionPanel;
-import org.processmining.framework.util.ui.widgets.Inspector;
-import org.processmining.framework.util.ui.widgets.InspectorPanel;
-import org.processmining.framework.util.ui.widgets.ProMPropertiesPanel;
-import org.processmining.framework.util.ui.widgets.ProMTextArea;
-//import org.processmining.plugins.log.ui.logdialog.ProcessInstanceView;
-
+import org.processmining.models.graphbased.AttributeMap;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
-import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.HistoryUnfolding;
 import org.processmining.plugins.unfolding.MyBCSUnfoldingVisualizePlugin;
+import org.processmining.plugins.unfolding.PetrinetNodeMod;
+import org.processmining.plugins.unfolding.UtilitiesforMapping;
 import org.processmining.support.localconfiguration.LocalConfiguration;
+import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.StatisticMap;
-
 import com.fluxicon.slickerbox.components.AutoFocusButton;
 import com.fluxicon.slickerbox.factory.SlickerDecorator;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
@@ -77,87 +64,110 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	private JComponent component;
 	private JTable tab;
 	private String panelName;
-	//private TotalConformanceResult tovisualize;
-	//private HistoryUnfolding historyunf;
-	private ArrayList<Collection<PetrinetNode>> historyPN;
-	private ArrayList<Transition> locConf;
-	private  UnfoldingInspectorPanel inspector;
+//	private ArrayList<Collection<PetrinetNode>> historyPN;
+	private LocalConfigurationMap local;
+	private UnfoldingInspectorPanel inspector;
 	private StatisticMap statistiunf;
 	private MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin;
+	private Map<LocalConfiguration,Color> maplocalcolor;
+	private Map<PetrinetNodeMod,BPMNNode> reverseMap;
+	private ArrayList<LocalConfiguration> list;
 
 	public TabTraceUnfodingPanel(PluginContext context, ScalableViewPanel panel, String panelName,
-			HistoryUnfolding hu, StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, InfoConversionBP2PN info){
+			HistoryUnfolding hu, StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, InfoConversionBP2PN info, LocalConfigurationMap local ){
 		super(new BorderLayout());
+		maplocalcolor = new HashMap<LocalConfiguration,Color>();
+		list = new ArrayList<LocalConfiguration>();
 		this.statistiunf = statistiunf;
 		this.visualizeUnfoldingStatistics_Plugin = visualizeUnfoldingStatistics_Plugin;
 		this.setBorder(BorderFactory.createEmptyBorder());
 		this.setOpaque(true);
 		this.setSize(new Dimension(160, 260));
-		//this.historyunf=hu;
 		this.addMouseMotionListener(this);
 		this.addMouseListener(this);
-	//	historyPN = hu.createHistoryDFS();
-		historyPN =hu.createHistoryBFS();
-		
-	//	historyBPMN = hu.HistoryonBP(info, bpmn);
+	//	historyPN =hu.createHistoryBFS();
+		this.local = local; 
+		this.reverseMap = statistiunf.getReverseMap();
 		panel.getViewport();
+		init();
 		this.panelName = panelName;
-		/*this.tovisualize=tpr;
-
-		replayRuposPanel=replayPRP;*/
 		inspector = new UnfoldingInspectorPanel(context);
 		panel.add(inspector);
 		painttabtrace();
 		widget(this);
-
 	}
 
 	public JPanel widget(JPanel panell){
 
-		// XLogInfo info = null;
-		// info = XLogInfoFactory.createLogInfo(log);
-		// ProcessInstanceView instanceView = new ProcessInstanceView(log.get(index), info);
-		// instanceView.setAlignmentX(LEFT_ALIGNMENT);
 		JPanel comprisePanel = new JPanel();
 	
 		comprisePanel.setAlignmentX(LEFT_ALIGNMENT);
 		comprisePanel.setBorder(BorderFactory.createEmptyBorder());
 		comprisePanel.setOpaque(false);
 		comprisePanel.setLayout(new BoxLayout(comprisePanel, BoxLayout.X_AXIS));
-		//	inspector.setSize(new Dimension(160, 260));
 		comprisePanel.add(tab);
 		comprisePanel.add(Box.createHorizontalGlue());
 	
-		//	inspector = new InspectorPanel((Frame) null);
-		//	inspector.removeInfoAll(0);
 		inspector.addInfo("Unfolding History", comprisePanel);
 		
 
 		JButton	button2  = new AutoFocusButton("Reset");
-
-
 		button2.setOpaque(false);
-
-
 		button2.setFont(new Font("Monospaced", Font.PLAIN, 12));
-
-
-
 		button2.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//replayRuposPanel.fullrepaint();
-				visualizeUnfoldingStatistics_Plugin.repaint(new ArrayList<PetrinetNode>(),false);
+				BPMNDiagram bpmncopia= visualizeUnfoldingStatistics_Plugin.getBpmncopia();
+				visualizeUnfoldingStatistics_Plugin.repaint(false, bpmncopia);
 			}
-
-		});
+		}
+	);
 
 		inspector.addReset("Reset", button2);
-
 		return comprisePanel;
+	}
+	
+	private void init(){
+		ArrayList<Transition> cutoff = statistiunf.getCutoff();
+		ArrayList<Transition> cutoffU = statistiunf.getCutoffUnbounded();		
+		ArrayList<Transition> dead = statistiunf.getDead();
+		ArrayList<Transition> deadL = statistiunf.getDeadlock();
 
-		//, "0, 0");
+		fillmap(cutoff,Color.BLUE);
+		fillmap(cutoffU,Color.BLUE);
+		fillmap(dead,Color.RED);
+		fillmap(deadL,Color.RED);		
+	}
+	
+	public BPMNDiagram paintConf(LocalConfiguration localConfiguration,Map<?,BPMNNode> reverseMap){
+		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(MyBCSUnfoldingVisualizePlugin.getOriginalBpmn());
+		ArrayList<Transition> elenco = localConfiguration.get();
+		for (Transition pn: elenco){
+			System.out.println("paint conf: " + pn.getLabel());			
+			BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
+			BPMNNode clonato = MyBCSUnfoldingVisualizePlugin.getNodeinClone(bpmncopia, node);
+			if (clonato != null){
+				clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.GREEN);
+				}		
+		}
+		return bpmncopia;	
+	}
+	
+	
+	private void fillmap(ArrayList<Transition> elements, Color color) {
+		if (!elements.isEmpty()){					
+			for (Transition t : elements) {
+				if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
+
+					LocalConfiguration l =  local.get(t);
+					if(l!=null){
+						list.add(l);
+						maplocalcolor.put(l, color);
+					}
+				}												
+			}
+		}
 
 	}
 
@@ -170,21 +180,41 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		legendPanel.setBackground(new Color(30, 30, 30));
 
 
-		JPanel jp1 = new JPanel();
+		//JPanel jp1 = new JPanel();
 		tab = new JTable(new AbstractTableModel() {
 
 			private static final long serialVersionUID = -2176731961693608635L;
 			
-
+			
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-				return historyPN.get(rowIndex);// tovisualize.getList().get(rowIndex).getTracename()+"+"+tovisualize.getList().get(rowIndex).getConformance();//rowIndex;
-			}
+//				if(list!=null){
+//					return list.get(rowIndex);
+//				}
+//				return 0;
+//			}
+//			
 
+				if(list!=null){
+					ArrayList<Transition> alt = null;
+					BPMNNode node = null;					
+					for (LocalConfiguration lc: list){
+						
+						alt = lc.get();
+						for (Transition t:alt){
+							node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+							if (node != null){
+								return node.getLabel();	}
+							}
+						}
+					}
+					
+				return 0;
+			}
+			
 			@Override
 			public int getRowCount() {
-
-				return historyPN.size();//tovisualize.getList().size();
+				return list.size();
 			}
 
 			@Override
@@ -207,55 +237,39 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		
 		tab.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
 			{
 
 				Component cell = super.getTableCellRendererComponent (table, value, isSelected, hasFocus, row, column);
-				//this.scrollRectToVisible(getBounds());
-				// setToolTipText(table.getValueAt(row, column).toString());
-				ArrayList<Transition> cuttoff = statistiunf.getCutoffUnbounded();
-				ArrayList<Transition> deadlock = statistiunf.getDeadlock();
-				boolean flag = search(historyPN.get(row), cuttoff);
-
-				boolean flag2 = search(historyPN.get(row), deadlock);
-				if(flag2){
-					if(flag){
-						cell.setBackground( Color.orange );
-					}else
-						cell.setBackground( Color.red );
-				}else{
-					if(flag){
-						cell.setBackground( Color.blue );
-					}else
-						cell.setBackground( Color.gray );
-				}
-
-				/*if (tovisualize.getList().get(row).getMissingMarking().isEmpty() &&
-							tovisualize.getList().get(row).getMapTransition().isEmpty() &&
-							tovisualize.getList().get(row).getConformance()>0.92){
-						cell.setBackground( Color.gray );
-					}else{
-
-						cell.setBackground( Color.red );
-					}*/
-
+				
+				LocalConfiguration key = list.get(row);
+				Color c = maplocalcolor.get(key);
+				
+				cell.setBackground(c );
 				return cell;
 
 			}
+		}
+	);
+//			private boolean search(Collection<PetrinetNode> collection,
+//					ArrayList<Transition> arraylist) {
+//				for (Transition transition : arraylist) {
+//					if(collection.contains(transition)){
+//						return true;
+//					}
+//				}
+//
+//				return false;
+//			}
+			
 
-			private boolean search(Collection<PetrinetNode> collection,
-					ArrayList<Transition> arraylist) {
-				for (Transition transition : arraylist) {
-					if(collection.contains(transition)){
-						return true;
-					}
-				}
-
-				return false;
-			}});
-
-
-
+		
+		
 
 		tab.addMouseListener(new MouseListener() {
 
@@ -288,13 +302,12 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				// TODO Auto-generated method stub
 				JTable target = (JTable)e.getSource();
 				int row = target.getSelectedRow();
-				int column = target.getSelectedColumn();
-				visualizeUnfoldingStatistics_Plugin.repaint(historyPN.get(row),false);
+				BPMNDiagram pc = paintConf(list.get(row),reverseMap);
+				visualizeUnfoldingStatistics_Plugin.repaint(false,pc);
 			}
 		});
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
-		jp1.setLayout(new BoxLayout(jp1, BoxLayout.X_AXIS));
-
+	
 		JScrollPane scrollpane = new JScrollPane(tab); 
 		scrollpane.setOpaque(false);
 		scrollpane.getViewport().setOpaque(false);
@@ -308,64 +321,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		SlickerDecorator.instance().decorate(scrollpane.getHorizontalScrollBar(), new Color(0, 0, 0, 0),
 				new Color (140, 140, 140), new Color(80, 80, 80));
 		scrollpane.getHorizontalScrollBar().setOpaque(false);
-
-
-
-		JButton button  = new AutoFocusButton("Update");
-		JButton	button2  = new AutoFocusButton("UpdateAll");
-
-		button.setOpaque(false);
-		button2.setOpaque(false);
-
-		button.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		button2.setFont(new Font("Monospaced", Font.PLAIN, 12));
-
-		jp1.add(button,BorderLayout.NORTH);
-		jp1.add(button2,BorderLayout.WEST);
-
-
-		button2.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				//replayRuposPanel.fullrepaint();
-				visualizeUnfoldingStatistics_Plugin.repaint(null,false);
-			}
-
-		});
-
-
-
-
-		legendPanel.add(jp1);
 		legendPanel.add(scrollpane,BorderLayout.SOUTH);
-
-
-
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-
-				int i=tab.getSelectedRow();
-				if(i>=0){
-					//replayRuposPanel.onerepaint(i);
-					//widget(i);
-					visualizeUnfoldingStatistics_Plugin.repaint(historyPN.get(i),false);
-					//	replayPerformanceRuposPanel.fullrepaint(tovisualize.getListperformance().get(i));
-
-				}
-
-			}
-		});
-
-
 		legendPanel.setOpaque(false);
 		this.add(legendPanel, BorderLayout.WEST);
 		this.setOpaque(false);
-
-
 	}
 
 
@@ -387,10 +346,11 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		JTable target = (JTable)e.getSource();
-		int row = target.getSelectedRow();
-		int column = target.getSelectedColumn();
-		visualizeUnfoldingStatistics_Plugin.repaint(historyPN.get(row),false);
+		//JTable target = (JTable)e.getSource();
+//		int row = target.getSelectedRow();
+		//int column = target.getSelectedColumn();
+		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(MyBCSUnfoldingVisualizePlugin.getOriginalBpmn());
+		visualizeUnfoldingStatistics_Plugin.repaint(false,bpmncopia);
 
 	}
 
