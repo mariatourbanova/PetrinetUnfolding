@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import org.processmining.framework.util.ui.scalableview.ScalableComponent;
 import org.processmining.framework.util.ui.scalableview.ScalableViewPanel;
 import org.processmining.framework.util.ui.scalableview.interaction.ViewInteractionPanel;
+import org.processmining.plugins.unfolding.Palette;
 
 import com.fluxicon.slickerbox.factory.SlickerDecorator;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
@@ -25,7 +26,7 @@ import com.fluxicon.slickerbox.factory.SlickerFactory;
 /**
  * Costruisce la legenda della rete di unfolding
  * 
- * @author Daniele Cicciarella
+ * @author Daniele Cicciarella e Francesco Boscia
  */
 public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMotionListener, ViewInteractionPanel 
 {
@@ -36,7 +37,7 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
     protected SlickerDecorator decorator = SlickerDecorator.instance();
     private JComponent component;
     private String panelName;
-
+    private Palette pal = new Palette();
     /**
      * Costruttore 
      * 
@@ -83,7 +84,7 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         layout.insertRow(row, 0.2);
         layout.insertRow(row, TableLayout.PREFERRED);
         JPanel bluePanel = new JPanel();
-        bluePanel.setBackground(Color.BLUE);
+        bluePanel.setBackground(pal.getCutColor());
         legendPanel.add(bluePanel, "0," + row + ",r, c");
         JLabel lb1 = factory.createLabel(" Points of Cutoff");
         lb1.setForeground(Color.WHITE);
@@ -92,17 +93,16 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         /* Riga punti di deadlock */
         layout.insertRow(row, TableLayout.PREFERRED);
         JPanel redPanel = new JPanel();
-        redPanel.setBackground(Color.RED);
+        redPanel.setBackground(pal.getDeadColor());
         legendPanel.add(redPanel, "0," + row + ",r, c");
         JLabel lb2 = factory.createLabel(" Points of Deadlock");
         lb2.setForeground(Color.WHITE);
         legendPanel.add(lb2, "1," + row++ + ",l, c");
-
+        
         /* Riga punti di cutoff e deadlock*/
         layout.insertRow(row, TableLayout.PREFERRED);
         JPanel violetPanel = new JPanel();
-        Color violet = new Color(138,43,226);
-        violetPanel.setBackground(violet);
+        violetPanel.setBackground(pal.getBothCutoffDead());
         legendPanel.add(violetPanel, "0," + row + ",r, c");
         JLabel lb3 = factory.createLabel(" Points of Cutoff and deadlock");
         lb3.setForeground(Color.WHITE);

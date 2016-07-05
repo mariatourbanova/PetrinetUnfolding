@@ -5,7 +5,7 @@ package org.processmining.support.unfolding;
 	import java.util.ArrayList;
 	import java.util.HashMap;
 	import java.util.Map;
-
+	import org.processmining.plugins.unfolding.Palette;
 	import org.processmining.models.graphbased.AttributeMap;
 	import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 	import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
@@ -33,8 +33,10 @@ package org.processmining.support.unfolding;
 		private static final String CUTOFF_UNBOUNDED = "Cutoff Unbounded";
 		private static final String DEADLOCK = "Deadlock";
 		private static final String DEAD = "Dead";
+		private Palette pal = new Palette();
+//		private Color deadColor = new Color(255,82,82);
+	//	private Color cutColor = new Color(0,255,255);
 
-		
 		/* Variabili utilizzate per le statistiche */
 		private int nArcs = 0, nPlaces = 0, nTransitions = 0;
 		private boolean isSound, isWeakSound;
@@ -70,7 +72,7 @@ package org.processmining.support.unfolding;
 		 */
 		public void addCutoff(Transition cutoff) 
 		{
-			cutoff.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.BLUE);
+			cutoff.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());
 			get(CUTOFF).add(cutoff);
 		}
 
@@ -91,7 +93,7 @@ package org.processmining.support.unfolding;
 		 */
 		public void addCutoffUnbounded(Transition cutoff)
 		{
-			cutoff.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.BLUE);
+			cutoff.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());
 			get(CUTOFF_UNBOUNDED).add(cutoff);
 		}
 		
@@ -111,9 +113,8 @@ package org.processmining.support.unfolding;
 		 * @param deadlock deadlock da aggiungere
 		 */
 		public void setDeadlock(ArrayList<Transition> deadlock)
-		{
-			for(Transition t : deadlock)
-				t.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.RED);
+		{ 	for(Transition t : deadlock)
+				t.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
 			put(DEADLOCK, deadlock);		
 		}
 		
@@ -133,8 +134,8 @@ package org.processmining.support.unfolding;
 		 * @param dead dead da aggiungere
 		 */
 		public void addDead(Transition dead) 
-		{
-			dead.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.RED);
+		{	
+			dead.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
 			get(DEAD).add(dead);
 		}
 
