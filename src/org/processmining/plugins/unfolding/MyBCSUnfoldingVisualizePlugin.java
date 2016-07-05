@@ -36,7 +36,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 	private StatisticMap statBPMN;
 	private UIPluginContext context; 
 	private InfoConversionBP2PN info = null;
-	private static BPMNDiagram bpmn= null;
+	private BPMNDiagram bpmn= null;
 	private BPMNDiagram bpmncopia; 
 
 
@@ -150,7 +150,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 	}
 
 
-	public static BPMNDiagram getOriginalBpmn(){
+	public BPMNDiagram getOriginalBpmn(){
 		return bpmn;
 	}
 	
@@ -164,7 +164,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 		}return false;
 	}
 	
-	public static BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
+	public BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
 		Set<BPMNNode> elenco = bpmn.getNodes();
 		for(BPMNNode nodeclone: elenco){
 			if(nodeclone.getLabel()!=null)

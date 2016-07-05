@@ -141,12 +141,12 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	}
 	
 	public BPMNDiagram paintConf(LocalConfiguration localConfiguration,Map<?,BPMNNode> reverseMap){
-		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(MyBCSUnfoldingVisualizePlugin.getOriginalBpmn());
+		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(visualizeUnfoldingStatistics_Plugin.getOriginalBpmn());
 		ArrayList<Transition> elenco = localConfiguration.get();
 		for (Transition pn: elenco){
 			System.out.println("paint conf: " + pn.getLabel());			
 			BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
-			BPMNNode clonato = MyBCSUnfoldingVisualizePlugin.getNodeinClone(bpmncopia, node);
+			BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 			if (clonato != null){
 				clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.GREEN);
 				}		
@@ -349,7 +349,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		//JTable target = (JTable)e.getSource();
 //		int row = target.getSelectedRow();
 		//int column = target.getSelectedColumn();
-		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(MyBCSUnfoldingVisualizePlugin.getOriginalBpmn());
+		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(visualizeUnfoldingStatistics_Plugin.getOriginalBpmn());
 		visualizeUnfoldingStatistics_Plugin.repaint(false,bpmncopia);
 
 	}
