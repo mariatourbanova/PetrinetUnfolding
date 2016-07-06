@@ -6,6 +6,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,7 +25,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
@@ -195,7 +198,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 						String elencoBPMN = "";
 						for (Transition t:alt){
 							node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
-							elencoBPMN = list(reverseMap,alt);
+							elencoBPMN = listing(reverseMap,alt);
 							if (node != null){
 								return node.getLabel() +" --> " + elencoBPMN; }
 						}						
@@ -204,24 +207,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				return 0;
 			}
 			
-			public String list(Map<PetrinetNodeMod,BPMNNode> reverseMap, ArrayList<Transition> alt){
-				String elencoBPMN = "";
-				BPMNNode node = null;
-				HashSet<BPMNNode> hs = new HashSet<BPMNNode>();
-				for (Transition t: alt){
-					//cerco i BPMNNode
-					node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
-					if (node != null){
-						//con HashSet rimuovo doppioni
-						hs.add(node);
-					}
-				}
-				//inverto la stringa 
-				for (BPMNNode bp: hs){
-					elencoBPMN = bp.toString() + ", " + elencoBPMN;
-				}
-				return elencoBPMN.substring(0, (elencoBPMN.length())-2); //rimuovo l'ultima virgola
-			}
 			
 			@Override
 			public int getRowCount() {
@@ -297,11 +282,30 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
+				//risconosce comunque prima il click singolo poi il doppio click
 				JTable target = (JTable)e.getSource();
 				int row = target.getSelectedRow();
-				BPMNDiagram pc = paintConf(list.get(row),reverseMap);
-				visualizeUnfoldingStatistics_Plugin.repaint(false,pc);
+				ArrayList<Transition> alt = null;
+				for (LocalConfiguration lc: list){
+					alt = lc.get();}
+				LocalConfiguration localConf = list.get(row);
+				System.out.println(e.getClickCount());
+				switch(e.getClickCount()){
+				case 2:	if (e.getClickCount() == 2){
+					System.out.println("Doppio click");
+					String clip = listing(reverseMap,alt);
+					copyStringToClipboard("BPMNlist: " + clip + "; Local Configuration: " + localConf.toString()); //copia la localConf
+					break;}
+				case 1: {
+					if (e.getClickCount()==1){
+						System.out.println("click singolo");
+						//BPMNDiagram pc = paintConf(list.get(row),reverseMap);
+						BPMNDiagram pc = paintConf(localConf,reverseMap);
+						visualizeUnfoldingStatistics_Plugin.repaint(false,pc);}
+				}
+				
+				}
+				
 			}
 		});
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
@@ -323,6 +327,26 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		legendPanel.setOpaque(false);
 		this.add(legendPanel, BorderLayout.WEST);
 		this.setOpaque(false);
+	}
+
+
+	public String listing(Map<PetrinetNodeMod,BPMNNode> reverseMap, ArrayList<Transition> alt){
+		String elencoBPMN = "";
+		BPMNNode node = null;
+		HashSet<BPMNNode> hs = new HashSet<BPMNNode>();
+		for (Transition t: alt){
+			//cerco i BPMNNode
+			node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+			if (node != null){
+				//con HashSet rimuovo doppioni
+				hs.add(node);
+			}
+		}
+		//inverto la stringa 
+		for (BPMNNode bp: hs){
+			elencoBPMN = bp.toString() + ", " + elencoBPMN;
+		}
+		return elencoBPMN.substring(0, (elencoBPMN.length())-2); //rimuovo l'ultima virgola
 	}
 
 
@@ -411,5 +435,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 	public void setSize(int width, int height) {
 		super.setSize(width, height);
+	}
+	public static void copyStringToClipboard (String str)
+	{
+	Clipboard clipBoard = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+	clipBoard.setContents (new StringSelection (str), null);
 	}
 }
