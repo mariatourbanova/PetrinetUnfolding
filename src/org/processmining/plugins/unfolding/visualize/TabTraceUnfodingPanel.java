@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -20,6 +21,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
@@ -64,7 +66,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	private JComponent component;
 	private JTable tab;
 	private String panelName;
-//	private ArrayList<Collection<PetrinetNode>> historyPN;
 	private LocalConfigurationMap local;
 	private UnfoldingInspectorPanel inspector;
 	private StatisticMap statistiunf;
@@ -85,7 +86,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		this.setSize(new Dimension(160, 260));
 		this.addMouseMotionListener(this);
 		this.addMouseListener(this);
-	//	historyPN =hu.createHistoryBFS();
 		this.local = local; 
 		this.reverseMap = statistiunf.getReverseMap();
 		panel.getViewport();
@@ -108,14 +108,13 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		comprisePanel.add(tab);
 		comprisePanel.add(Box.createHorizontalGlue());
 	
-		inspector.addInfo("Unfolding History", comprisePanel);
-		
+		inspector.addInfo("Unfolding History", comprisePanel);   
 
 		JButton	button2  = new AutoFocusButton("Reset");
 		button2.setOpaque(false);
 		button2.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		button2.addActionListener(new ActionListener() {
-
+		
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				BPMNDiagram bpmncopia= visualizeUnfoldingStatistics_Plugin.getBpmncopia();
@@ -128,6 +127,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		return comprisePanel;
 	}
 	
+	 
 	private void init(){
 		ArrayList<Transition> cutoff = statistiunf.getCutoff();
 		ArrayList<Transition> cutoffU = statistiunf.getCutoffUnbounded();		
@@ -144,7 +144,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(visualizeUnfoldingStatistics_Plugin.getOriginalBpmn());
 		ArrayList<Transition> elenco = localConfiguration.get();
 		for (Transition pn: elenco){
-			System.out.println("paint conf: " + pn.getLabel());			
 			BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 			BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 			if (clonato != null){
@@ -179,8 +178,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		legendPanel.setBorder(BorderFactory.createEmptyBorder());
 		legendPanel.setBackground(new Color(30, 30, 30));
 
-
-		//JPanel jp1 = new JPanel();
+		
 		tab = new JTable(new AbstractTableModel() {
 
 			private static final long serialVersionUID = -2176731961693608635L;
@@ -188,28 +186,41 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-//				if(list!=null){
-//					return list.get(rowIndex);
-//				}
-//				return 0;
-//			}
-//			
-
 				if(list!=null){
 					ArrayList<Transition> alt = null;
 					BPMNNode node = null;					
 					for (LocalConfiguration lc: list){
-						
+
 						alt = lc.get();
+						String elencoBPMN = "";
 						for (Transition t:alt){
 							node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+							elencoBPMN = list(reverseMap,alt);
 							if (node != null){
-								return node.getLabel();	}
-							}
-						}
+								return node.getLabel() +" --> " + elencoBPMN; }
+						}						
 					}
-					
+				}
 				return 0;
+			}
+			
+			public String list(Map<PetrinetNodeMod,BPMNNode> reverseMap, ArrayList<Transition> alt){
+				String elencoBPMN = "";
+				BPMNNode node = null;
+				HashSet<BPMNNode> hs = new HashSet<BPMNNode>();
+				for (Transition t: alt){
+					//cerco i BPMNNode
+					node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+					if (node != null){
+						//con HashSet rimuovo doppioni
+						hs.add(node);
+					}
+				}
+				//inverto la stringa 
+				for (BPMNNode bp: hs){
+					elencoBPMN = bp.toString() + ", " + elencoBPMN;
+				}
+				return elencoBPMN.substring(0, (elencoBPMN.length())-2); //rimuovo l'ultima virgola
 			}
 			
 			@Override
@@ -256,20 +267,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			}
 		}
 	);
-//			private boolean search(Collection<PetrinetNode> collection,
-//					ArrayList<Transition> arraylist) {
-//				for (Transition transition : arraylist) {
-//					if(collection.contains(transition)){
-//						return true;
-//					}
-//				}
-//
-//				return false;
-//			}
-			
-
-		
-		
 
 		tab.addMouseListener(new MouseListener() {
 
@@ -288,12 +285,13 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			@Override
 			public void mouseExited(MouseEvent e) {
 				// TODO Auto-generated method stub
-
+				
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				// TODO Auto-generated method stub
+			//	Popup.infoBox("YOUR INFORMATION HERE", "TITLE BAR MESSAGE");
 
 			}
 
@@ -346,9 +344,9 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		//JTable target = (JTable)e.getSource();
-//		int row = target.getSelectedRow();
-		//int column = target.getSelectedColumn();
+		JTable target = (JTable)e.getSource();
+		int row = target.getSelectedRow();
+		int column = target.getSelectedColumn();
 		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(visualizeUnfoldingStatistics_Plugin.getOriginalBpmn());
 		visualizeUnfoldingStatistics_Plugin.repaint(false,bpmncopia);
 
