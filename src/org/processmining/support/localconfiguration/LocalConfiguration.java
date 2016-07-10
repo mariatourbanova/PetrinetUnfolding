@@ -48,6 +48,13 @@ public class LocalConfiguration
 		return localConfiguration;
 	}
 	
+	public ArrayList<Transition> toArrayList(LocalConfiguration lc){
+		
+		return localConfiguration;
+		
+	}
+	
+	
 	/**
 	 * Visita all'indietro la rete di unfolding per la costruzione della configurazione locale
 	 * 
