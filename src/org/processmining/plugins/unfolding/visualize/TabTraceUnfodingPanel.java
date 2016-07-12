@@ -174,7 +174,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
 					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArtColor());
-					System.out.println("Old: " + previousNode.getLabel() + " e Clonato:" + clonato.getLabel());
 				}
 				
 				//archi entranti in previousNode, uscenti in clonato
@@ -183,7 +182,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> from : previousNodeEdges){
 					for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> to : clonatoEdges){
 						if (to.getEdgeID() == from.getEdgeID()){
-							System.out.println(to.getEdgeID() + "=" + from.getEdgeID());							
 							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArtColor());
 							to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
 							to.getAttributeMap().put(AttributeMap.LABEL, run.toString());
@@ -191,9 +189,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 							to.getAttributeMap().put(AttributeMap.SHAPE, Color.RED);
 							run++;
 							break;
-						}
-						else{
-							System.out.println(to.getEdgeID() + "!=" + from.getEdgeID());
 						}
 					}
 				}
@@ -237,7 +232,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				BPMNNode node = null;
 				LocalConfiguration running = null; 
 				ArrayList<Transition> lista = new ArrayList<Transition>();
-				System.out.println("index = " + rowIndex);
 				if(list!=null){
 						running = list.get(rowIndex);
 						lista = running.toArrayList(running);
@@ -326,19 +320,15 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//risconosce comunque prima il click singolo poi il doppio click
 				JTable target = (JTable)e.getSource();
 				int row = target.getSelectedRow();
 				LocalConfiguration localConf = list.get(row);
-				System.out.println("numero click: " + e.getClickCount());
 				switch(e.getClickCount()){
 				case 2:	if (e.getClickCount() == 2){
-					System.out.println("Doppio click");
 					copyStringToClipboard("BPMNlist: " + elencoBPMN + "; Local Configuration: " + localConf.toString()); //copia la localConf
 					break;}
 				case 1: {
 					if (e.getClickCount()==1){
-						System.out.println("click singolo");
 						BPMNDiagram pc = paintConf(localConf,reverseMap);
 						visualizeUnfoldingStatistics_Plugin.repaint(false,pc);}
 				}
