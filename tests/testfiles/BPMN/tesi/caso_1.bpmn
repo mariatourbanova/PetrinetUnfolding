@@ -10,7 +10,7 @@
     </participant>
   </collaboration>
   <process id="PROCESS_1" isClosed="false" isExecutable="true" processType="None">
-    <startEvent id="_3" isInterrupting="true" name="EA" parallelMultiple="false">
+    <startEvent id="_3" isInterrupting="true" name="Start" parallelMultiple="false">
       <outgoing>_5</outgoing>
       <outputSet/>
     </startEvent>
@@ -37,7 +37,7 @@
       <outgoing>_18</outgoing>
     </exclusiveGateway>
     <sequenceFlow id="_14" name="srco4" sourceRef="_12" targetRef="_4"/>
-    <endEvent id="_17" name="EA">
+    <endEvent id="_17" name="End">
       <incoming>_18</incoming>
       <inputSet/>
     </endEvent>
@@ -54,7 +54,7 @@
       <bpmndi:BPMNShape bpmnElement="_3" id="Yaoqiang-_3">
         <dc:Bounds height="32.0" width="32.0" x="103.50000000000009" y="291.5909090909091"/>
         <bpmndi:BPMNLabel>
-          <dc:Bounds height="19.8359375" width="20.0" x="109.50000000000009" y="331.6954012784091"/>
+          <dc:Bounds height="19.8359375" width="29.0" x="105.00000000000009" y="331.6954012784091"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="_6" id="Yaoqiang-_6">
@@ -84,7 +84,7 @@
       <bpmndi:BPMNShape bpmnElement="_17" id="Yaoqiang-_17">
         <dc:Bounds height="32.0" width="32.0" x="880.4090909090909" y="290.68181818181824"/>
         <bpmndi:BPMNLabel>
-          <dc:Bounds height="19.8359375" width="20.0" x="886.4090909090909" y="330.78631036931824"/>
+          <dc:Bounds height="19.8359375" width="24.0" x="884.4090909090909" y="330.78631036931824"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="_18" id="Yaoqiang-_18">

@@ -15,11 +15,13 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.models.graphbased.AttributeMap;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
+import org.processmining.plugins.bpmn.BpmnEventBasedGateway;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
 import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
@@ -37,7 +39,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 	private UIPluginContext context; 
 	private InfoConversionBP2PN info = null;
 	private BPMNDiagram bpmn= null;
-	private BPMNDiagram bpmncopia; 
+	private CloneBPMN bpmncopia; 
 	private LocalConfigurationMap local;
 	private Petrinet petrinet;
 	private Petrinet unfolding = null;
@@ -163,11 +165,18 @@ public class MyBCSUnfoldingVisualizePlugin {
 	
 	public BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
 		Set<BPMNNode> elenco = bpmn.getNodes();
+		if(node!=null)
 		for(BPMNNode nodeclone: elenco){
+			Object idoc = nodeclone.getAttributeMap().get("Original id");
+			Object inode = node.getAttributeMap().get("Original id");
+			if( idoc.toString().equals(inode.toString())){
+				return nodeclone;
+			}
+			/*
 			if(nodeclone.getLabel()!=null)
 				if(confrontoBPMNnode(nodeclone,node)){
 					return nodeclone;
-			}
+			}*/
 		}
 		return null;
 	}
@@ -175,7 +184,10 @@ public class MyBCSUnfoldingVisualizePlugin {
 	
 private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		//Clono il BPMN diagram
-		bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(bpmnoriginal);
+	
+		bpmncopia = new CloneBPMN(bpmnoriginal.getLabel());
+		bpmncopia.cloneFrom(bpmnoriginal);
+		
 		 
 		for( Transition t: map.getCutoff()){
 			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);

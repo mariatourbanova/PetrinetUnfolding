@@ -107,6 +107,15 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         JLabel lb3 = factory.createLabel(" Points of Cutoff and deadlock");
         lb3.setForeground(Color.WHITE);
         legendPanel.add(lb3, "1," + row++ + ",l, c");
+        
+        /* Riga label archi*/
+        layout.insertRow(row, TableLayout.PREFERRED);
+        JLabel arcNumberLabel = factory.createLabel(" 1");
+        arcNumberLabel.setForeground(Color.RED);
+        legendPanel.add(arcNumberLabel, "0," + row + ",r, c");
+        JLabel arcLabel = factory.createLabel(" Ordine esecuzione attività (inverso)");
+        arcLabel.setForeground(Color.WHITE);
+        legendPanel.add(arcLabel, "1," + row++ + ",l, c");
 
         /* Riga vuota */
         layout.insertRow(row, 0.2);

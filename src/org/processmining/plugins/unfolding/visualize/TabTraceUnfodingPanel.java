@@ -29,13 +29,11 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.Popup;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.apache.tools.ant.taskdefs.Local;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.ui.scalableview.ScalableComponent;
 import org.processmining.framework.util.ui.scalableview.ScalableViewPanel;
@@ -47,8 +45,10 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
+import org.processmining.plugins.unfolding.CloneBPMN;
 import org.processmining.plugins.unfolding.HistoryUnfolding;
 import org.processmining.plugins.unfolding.MyBCSUnfoldingVisualizePlugin;
+import org.processmining.plugins.unfolding.Palette;
 import org.processmining.plugins.unfolding.PetrinetNodeMod;
 import org.processmining.plugins.unfolding.UtilitiesforMapping;
 import org.processmining.support.localconfiguration.LocalConfiguration;
@@ -83,7 +83,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	private Map<PetrinetNodeMod,BPMNNode> reverseMap;
 	private ArrayList<LocalConfiguration> list;
 	private String elencoBPMN = "";
-	private int row = 0;
+	private Palette pal = new Palette();
 	
 	public TabTraceUnfodingPanel(PluginContext context, ScalableViewPanel panel, String panelName,
 			HistoryUnfolding hu, StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, InfoConversionBP2PN info, LocalConfigurationMap local ){
@@ -145,23 +145,27 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		ArrayList<Transition> dead = statistiunf.getDead();
 		ArrayList<Transition> deadL = statistiunf.getDeadlock();
 
-		fillmap(cutoff,Color.BLUE);
-		fillmap(cutoffU,Color.BLUE);
-		fillmap(dead,Color.RED);
-		fillmap(deadL,Color.RED);		
+		fillmap(cutoff,pal.getCutColor());
+		fillmap(cutoffU,pal.getCutColor());
+		fillmap(dead,pal.getDeadColor());
+		fillmap(deadL,pal.getDeadColor());		
 	}
 	
 	public BPMNDiagram paintConf(LocalConfiguration localConfiguration,Map<?,BPMNNode> reverseMap){
-		BPMNDiagram bpmncopia = BPMNDiagramFactory.cloneBPMNDiagram(visualizeUnfoldingStatistics_Plugin.getOriginalBpmn());
+		BPMNDiagram bpmnoriginal = visualizeUnfoldingStatistics_Plugin.getOriginalBpmn();
+		CloneBPMN bpmncopia = new CloneBPMN(bpmnoriginal.getLabel());
+		bpmncopia.cloneFrom(bpmnoriginal);
 		ArrayList<Transition> elenco = localConfiguration.toArrayList(localConfiguration);
 		BPMNNode node = null;
 		BPMNNode previousNode = null;
+		Integer run = 1;
+		
 		for (Transition pn: elenco){
 			if (previousNode == null){
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.GREEN);
+					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArtColor());
 				}	
 				previousNode = clonato;
 			}
@@ -169,11 +173,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, Color.GREEN);
+					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArtColor());
 					System.out.println("Old: " + previousNode.getLabel() + " e Clonato:" + clonato.getLabel());
 				}
 				
-				//o riprovare HashSet o aggiungere controllo se clontato=old; in quel caso non si 
 				//archi entranti in previousNode, uscenti in clonato
 				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> previousNodeEdges = bpmncopia.getInEdges(previousNode);
 				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> clonatoEdges = bpmncopia.getOutEdges(clonato);
@@ -181,8 +184,12 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 					for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> to : clonatoEdges){
 						if (to.getEdgeID() == from.getEdgeID()){
 							System.out.println(to.getEdgeID() + "=" + from.getEdgeID());							
-							to.getAttributeMap().put(AttributeMap.EDGECOLOR, Color.GREEN);
+							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArtColor());
 							to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
+							to.getAttributeMap().put(AttributeMap.LABEL, run.toString());
+							to.getAttributeMap().put(AttributeMap.LABELCOLOR, Color.RED);
+							to.getAttributeMap().put(AttributeMap.SHAPE, Color.RED);
+							run++;
 							break;
 						}
 						else{
@@ -224,7 +231,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		tab = new JTable(new AbstractTableModel() {
 
 			private static final long serialVersionUID = -2176731961693608635L;
-			int row = 0;
 			
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
@@ -283,7 +289,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				
 				LocalConfiguration key = list.get(row);
 				Color c = mapLocalColor.get(key);
-				setToolTipText(key.toString());
+				setToolTipText(elencoBPMN.toString());
 				cell.setBackground(c );
 				return cell;
 
@@ -323,27 +329,21 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				//risconosce comunque prima il click singolo poi il doppio click
 				JTable target = (JTable)e.getSource();
 				int row = target.getSelectedRow();
-				ArrayList<Transition> alt = null;
-				for (LocalConfiguration lc: list){
-					alt = lc.get();}
 				LocalConfiguration localConf = list.get(row);
-				System.out.println(e.getClickCount());
+				System.out.println("numero click: " + e.getClickCount());
 				switch(e.getClickCount()){
 				case 2:	if (e.getClickCount() == 2){
 					System.out.println("Doppio click");
-					//String clip = listing(reverseMap,alt);
 					copyStringToClipboard("BPMNlist: " + elencoBPMN + "; Local Configuration: " + localConf.toString()); //copia la localConf
 					break;}
 				case 1: {
 					if (e.getClickCount()==1){
 						System.out.println("click singolo");
-						//BPMNDiagram pc = paintConf(list.get(row),reverseMap);
 						BPMNDiagram pc = paintConf(localConf,reverseMap);
 						visualizeUnfoldingStatistics_Plugin.repaint(false,pc);}
 				}
-				
-				}
-				
+				}	
+
 			}
 		});
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
@@ -372,13 +372,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		elencoBPMN = "";
 		BPMNNode node = null;
 		ArrayList<BPMNNode> alb = new ArrayList<BPMNNode>();
-		Set<BPMNNode> hs = new HashSet<BPMNNode>();
 		for (Transition t: alt){
 			//cerco i BPMNNode
 			node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
 			if (node != null){
-				//con HashSet rimuovo doppioni
-				//hs.add(node);
 				alb.add(node);
 			}
 		}
@@ -486,7 +483,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		BPMNNode node = null;
 		LocalConfiguration running = null; 
 		ArrayList<Transition> lista = new ArrayList<Transition>();
-		System.out.println("index = " + index);
 		if(list!=null){
 				running = list.get(index);
 				lista = running.toArrayList(running);
