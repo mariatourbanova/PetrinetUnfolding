@@ -25,10 +25,9 @@ import org.processmining.support.unfolding.Utility;
 /**
  * Converte un rete di Petri in una BCS unfolding
  * 
- * @author Daniele Cicciarella
- * @param <syncronized>
+ * @author Daniele Cicciarella e Francesco Boscia
  */
-public class BCSUnfolding
+public class BCSUnfolding<Syncronized>
 {	
 	Boolean concurrentVersion = true;
 	/* Contesto di ProM */
@@ -65,7 +64,8 @@ public class BCSUnfolding
 	protected StatisticMap statisticMap = new StatisticMap();
 
 	/*PoolThread to manage Visit*/
-	ExecutorService executor = Executors.newFixedThreadPool(5); 
+//	ExecutorService executor = Executors.newFixedThreadPool(5); 
+	ExecutorService executor = Executors.newCachedThreadPool();
 	
 	/**
 	 * Costruttore

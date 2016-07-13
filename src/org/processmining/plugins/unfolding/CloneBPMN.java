@@ -19,7 +19,6 @@ import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
 import org.processmining.models.graphbased.directed.bpmn.elements.MessageFlow;
 import org.processmining.models.graphbased.directed.bpmn.elements.SubProcess;
 import org.processmining.models.graphbased.directed.bpmn.elements.Swimlane;
-import org.processmining.plugins.bpmn.BpmnLaneSet;
 
 public class CloneBPMN extends  BPMNDiagramImpl {
 
@@ -81,12 +80,12 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 									(Swimlane) mapping.get(s.getParentSwimlane()));
 							mapping.put(s,sb);
 						}
-					} else
+					} else{
 						sb = addSubProcess(s.getLabel(), s.isBLooped(), s.isBAdhoc(), s.isBCompensation(),
 								s.isBMultiinstance(), s.isBCollapsed());
-						mapping.put(s,sb);
-				}
+						mapping.put(s,sb);}
 				sb.getAttributeMap().put("Original id", s.getAttributeMap().get("Original id"));
+				}
 
 			}
 		}
@@ -117,8 +116,8 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 						a,
 						aa);
 				}
-			
 			aa.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+			
 		}
 
         for (CallActivity a : bpmndiagram.getCallActivities()) {
@@ -128,28 +127,22 @@ public class CloneBPMN extends  BPMNDiagramImpl {
                     aa = addCallActivity(a.getLabel(), a.isBLooped(), a.isBAdhoc(), a.isBCompensation(),
                             a.isBMultiinstance(), a.isBCollapsed(),
                             (SubProcess) mapping.get(a.getParentSubProcess()));
-                	
-                	mapping.put(
-                            a,
-                            aa);
+                	mapping.put(a,aa);
                 }
             } else if (a.getParentSwimlane() != null) {
                 if (mapping.containsKey(a.getParentSwimlane())) {
                     aa = addCallActivity(a.getLabel(), a.isBLooped(), a.isBAdhoc(), a.isBCompensation(),
                             a.isBMultiinstance(), a.isBCollapsed(),
                             (Swimlane) mapping.get(a.getParentSwimlane()));
-                	mapping.put(
-                            a,
-                            aa);
+                	mapping.put(a,aa);
                 }
             } else {
             	aa = addCallActivity(a.getLabel(), a.isBLooped(), a.isBAdhoc(), a.isBCompensation(),
                         a.isBMultiinstance(), a.isBCollapsed());
-                mapping.put(
-                        a,
-                        aa);
+                mapping.put(a,aa);
             }
-            }
+        	aa.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+        	}
 
 		for (Event e : bpmndiagram.getEvents()) {
 			Event ee = null; 
@@ -157,18 +150,13 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 				if (mapping.containsKey(e.getParentSubProcess())) {
 					ee =	addEvent(e.getLabel(), e.getEventType(), e.getEventTrigger(), e.getEventUse(),
 							(SubProcess) mapping.get(e.getParentSubProcess()), e.getBoundingNode());
-						mapping.put(
-							e,
-							ee);
+						mapping.put(e,ee);
 				}
 			} else if (e.getParentSwimlane() != null) {
 				if (mapping.containsKey(e.getParentSwimlane())) {
 					ee =	addEvent(e.getLabel(), e.getEventType(), e.getEventTrigger(), e.getEventUse(),
 							(Swimlane) mapping.get(e.getParentSwimlane()), e.getBoundingNode());
-							
-							mapping.put(
-							e,
-							ee);
+							mapping.put(e,ee);
 				}
 			} else{
 				ee =	addEvent(e.getLabel(), e.getEventType(), e.getEventTrigger(), e.getEventUse(),
@@ -206,16 +194,19 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 			Flow ff = addFlow((BPMNNode) mapping.get(f.getSource()), 
 					(BPMNNode) mapping.get(f.getTarget()), f.getLabel());
 			mapping.put(f, ff);
+			ff.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
 		}
 		for (MessageFlow f : bpmndiagram.getMessageFlows()) {
 			MessageFlow mf = addMessageFlow((BPMNNode) mapping.get(f.getSource()), 
 					(BPMNNode) mapping.get(f.getTarget()), f.getLabel());
 			mapping.put(f, mf);
+			mf.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
 		}
 		for (DataAssociation a : bpmndiagram.getDataAssociations()) {
 			DataAssociation da = addDataAssociation((BPMNNode) mapping.get(a.getSource()), 
 					(BPMNNode) mapping.get(a.getTarget()), a.getLabel()); 
 			mapping.put(a, da);
+			da.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
 		}
 
 		getAttributeMap().clear();

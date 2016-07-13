@@ -151,7 +151,6 @@ public class ThreadVisit implements Runnable {
 				}
 			}
 		}
-		//System.out.println(localConfigurationMap);
 	}
 
 }
