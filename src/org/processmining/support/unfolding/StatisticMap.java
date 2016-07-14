@@ -55,8 +55,15 @@ package org.processmining.support.unfolding;
 			put(CUTOFF_UNBOUNDED, new ArrayList <Transition> ());
 			put(DEADLOCK, new ArrayList <Transition> ());
 			put(DEAD, new ArrayList <Transition> ());
-			reverseMap = BPMN2WorkflowSystemConverter.getReverseMap();
+		
 		}
+		
+		
+		public void setReverseMap(Map<PetrinetNodeMod, BPMNNode> reverseMap) {
+			this.reverseMap = reverseMap;
+		}
+
+
 		/**
 		 * Ritorna la reverseMap
 		 * 

@@ -2,7 +2,6 @@ package org.processmining.plugins.unfolding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.processmining.models.graphbased.directed.DirectedGraphEdge;
@@ -106,8 +105,10 @@ public class ThreadVisit implements Runnable {
 				/* Per ogni combinazione rimanente */
 				for(Combination comb : combination)
 				{
+					String id = t2.getAttributeMap().get("Original_id").toString();		
 					/* Aggiungo t2 all'unfolding il quale sarà collagato con le piazze che lo abilitano */
 					Transition t3 = unfolding.addTransition(t2.getLabel());
+					t3.getAttributeMap().put("Original_id",id);	
 					for(int i = 0; i < comb.getElements().length; i++)
 						unfolding.addArc((Place) comb.getElements()[i], t3);
 
@@ -152,7 +153,6 @@ public class ThreadVisit implements Runnable {
 			}
 		}
 	}
-
 }
 
 	/**

@@ -157,12 +157,12 @@ public class MyBCSUnfoldingVisualizePlugin {
 		return petrinet;
 	}
 	
-	private static boolean confrontoBPMNnode(BPMNNode bpmnNode, BPMNNode bn){
-		if (bpmnNode != null && bn != null){
-			if ((bpmnNode.getLabel()).equals(bn.getLabel())) return true;
-		}return false;
-	}
-	
+//	private static boolean confrontoBPMNnode(BPMNNode bpmnNode, BPMNNode bn){
+//		if (bpmnNode != null && bn != null){
+//			if ((bpmnNode.getLabel()).equals(bn.getLabel())) return true;
+//		}return false;
+//	}
+//	
 	public BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
 		Set<BPMNNode> elenco = bpmn.getNodes();
 		if(node!=null)
@@ -192,7 +192,7 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		for( Transition t: map.getCutoff()){
 			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){		
-				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.cutColor);}
+				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());}
 			else System.out.println("vuoto");
 			
 		}
@@ -200,7 +200,7 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		for( Transition t: map.getCutoffUnbounded()){
 			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){
-			getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.cutColor);}
+			getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());}
 			else System.out.println("vuoto");
 		}
 
@@ -210,14 +210,14 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 				BPMNNode bpnod = getNodeinClone(bpmncopia,bpnode);
 				Color colo = (Color) bpnod.getAttributeMap().get(AttributeMap.FILLCOLOR);
 				if(colo != null) {
-					if (colo.equals(pal.cutColor)){
-						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.bothCutoffDead);
+					if (colo.equals(pal.getCutColor())){
+						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getBothCutoffDead());
 					}
 					else{					
-						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.deadColor);
+						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
 					}}
 					else{
-						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.deadColor);
+						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
 					}
 				
 				System.out.println("vuoto");

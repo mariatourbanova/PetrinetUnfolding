@@ -27,9 +27,9 @@ import org.processmining.support.unfolding.Utility;
  * 
  * @author Daniele Cicciarella e Francesco Boscia
  */
-public class BCSUnfolding<Syncronized>
+public class BCSUnfolding
 {	
-	Boolean concurrentVersion = true;
+	Boolean concurrentVersion = false;
 	/* Contesto di ProM */
 	protected PluginContext context;
 
@@ -64,7 +64,6 @@ public class BCSUnfolding<Syncronized>
 	protected StatisticMap statisticMap = new StatisticMap();
 
 	/*PoolThread to manage Visit*/
-//	ExecutorService executor = Executors.newFixedThreadPool(5); 
 	ExecutorService executor = Executors.newCachedThreadPool();
 	
 	/**
@@ -76,12 +75,15 @@ public class BCSUnfolding<Syncronized>
 	BCSUnfolding(PluginContext context, Petrinet petrinet) 
 	{
 		this.context = context;
-		this.petrinet =  PetrinetFactory.clonePetrinet(petrinet);
+		PetriNetClone pnc = new PetriNetClone(petrinet.getLabel());
+		pnc.cloneFrom(petrinet, true, true, true, false, false);
+		this.petrinet = pnc;
+		
 		this.unfolding = PetrinetFactory.newPetrinet("Unfolding from Petrinet");		
 	}
 
 	/**
-	 * Converte una rete di Petri in una rete BCS unfolding
+	 * Converte una rete di Petri in una* rete BCS unfolding
 	 * 
 	 * @return la rete BCS unfolding e le sue statistiche
 	 */
@@ -102,15 +104,17 @@ public class BCSUnfolding<Syncronized>
 		/* Inizializzo e visito la coda */
 		initQueue(i, i1);		
 		if (concurrentVersion == true){
-			System.out.println("Concurrent");
-		ThreadVisit tv = new ThreadVisit(concurrentQueue, unf2PetriMap, petrinet, unfolding,
+			if (concurrentQueue != null){
+			ThreadVisit tv = new ThreadVisit(concurrentQueue, unf2PetriMap, petrinet, unfolding,
 				petri2UnfMap,
 				markingMap,
 				statisticMap, localConfigurationMap,
 				i,o,reset);		
-		new Thread(tv).start();
-		
-		executor.execute(tv);}
+		System.out.println("Excector: " + executor.toString());
+		executor.execute(tv);
+		System.out.println("Excector: " + executor.toString());
+			}	System.out.println("ConcurrentQueue vuota");
+		}
 		else 
 		{System.out.println("visitQueue");
 			visitQueue();}	
@@ -137,7 +141,15 @@ public class BCSUnfolding<Syncronized>
 		{
 			/* Creo una transizione t1 nell'unfolding e attacco p1 con t1 */
 			Transition t = (Transition) a1.getTarget();
+			String id = "";
+			try{
+				id = t.getAttributeMap().get("Original id").toString();
+			}catch(NullPointerException e){
+				id = "_not_present";
+			}
+			
 			Transition t1 = unfolding.addTransition(t.getLabel());
+			t1.getAttributeMap().put("Original id", id);
 			unfolding.addArc(p1, t1);			
 
 			/* Per tutti i place u delle rete di petri attaccate a t */
@@ -153,8 +165,7 @@ public class BCSUnfolding<Syncronized>
 			/* Aggiorno tutte le strutture globali e la coda */
 			refreshCorrispondence(t, t1);
 			//queue risorsa condivisa
-			concurrentQueue.add(localConfigurationMap.get(t1));
-			
+			queue.add(localConfigurationMap.get(t1));			
 		}
 	}
 
@@ -218,9 +229,17 @@ public class BCSUnfolding<Syncronized>
 
 					/* Per ogni combinazione rimanente */
 					for(Combination comb : combination)
-					{
+					{	
+						String id = "";
+						try{
+							id = t2.getAttributeMap().get("Original id").toString();
+						}catch(NullPointerException e){
+							id = "_not_present";
+						}
 						/* Aggiungo t2 all'unfolding il quale sarà collagato con le piazze che lo abilitano */
 						Transition t3 = unfolding.addTransition(t2.getLabel());
+						t3.getAttributeMap().put("Original id",id);		
+
 						for(int i = 0; i < comb.getElements().length; i++)
 							unfolding.addArc((Place) comb.getElements()[i], t3);
 

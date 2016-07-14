@@ -58,7 +58,10 @@ public class BPMN2Unfolding_Plugin
 
 			/* Aggiungo connessione per la visualizzazione delle reti e statistiche delle rete unfoldata */
 			LocalConfigurationMap local = petrinet2Unfolding.getLocalConfigurationMap();
-			context.addConnection(new BCSUnfoldingConnection((StatisticMap)unfolding[1], petrinet,(Petrinet) unfolding[0],info,bpmn, local));
+			
+			StatisticMap stm = (StatisticMap)unfolding[1];
+			stm.setReverseMap(bpmn2Petrinet.getReverseMap());
+			context.addConnection(new BCSUnfoldingConnection(stm, petrinet,(Petrinet) unfolding[0],info,bpmn, local));
 			printstatistic(context,bpmn,petrinet, (Petrinet)unfolding[0]);
 
 			return new Object [] {unfolding[1], unfolding[0], petrinet};

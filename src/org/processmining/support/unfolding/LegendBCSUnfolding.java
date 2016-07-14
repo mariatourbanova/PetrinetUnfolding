@@ -5,6 +5,7 @@ import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -110,8 +111,11 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         
         /* Riga label archi*/
         layout.insertRow(row, TableLayout.PREFERRED);
-        JLabel arcNumberLabel = factory.createLabel(" 1");
-        arcNumberLabel.setForeground(Color.RED);
+        JLabel arcNumberLabel = factory.createLabel(" 1 ");
+        arcNumberLabel.setForeground(pal.getArcLabelColor());
+        Dimension n = arcNumberLabel.getSize();
+        
+        arcNumberLabel.setSize(n);
         legendPanel.add(arcNumberLabel, "0," + row + ",r, c");
         JLabel arcLabel = factory.createLabel(" Ordine esecuzione attività (inverso)");
         arcLabel.setForeground(Color.WHITE);

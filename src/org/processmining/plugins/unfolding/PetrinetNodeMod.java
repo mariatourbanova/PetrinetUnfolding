@@ -8,6 +8,8 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Expandable
 
 public class PetrinetNodeMod extends PetrinetNode  {
 
+	private String original_id = "";
+	
 	public PetrinetNodeMod(
 			AbstractDirectedGraph<PetrinetNode, PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> net,
 			ExpandableSubNet parent, String label) {
@@ -17,6 +19,8 @@ public class PetrinetNodeMod extends PetrinetNode  {
 	
 	public PetrinetNodeMod(PetrinetNode pn){
 		super(pn.getGraph(), pn.getParent(), pn.getLabel());
+		this.original_id = pn.getAttributeMap().get("Original id").toString();
+		
 	}
 	
 	public int hashCode() {
@@ -25,12 +29,20 @@ public class PetrinetNodeMod extends PetrinetNode  {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof AbstractGraphNode)) {
+		if (!(o instanceof PetrinetNodeMod)) {
 			return false;
 		}
-		AbstractGraphNode node = (AbstractGraphNode) o;
+		PetrinetNodeMod node = (PetrinetNodeMod) o;
+		if(original_id.length()>0)
+			return original_id.equals(node.getOID());
+				
 		
 		return node.getLabel().trim().equals(getLabel().trim());
+	}
+
+	private String getOID() {
+		
+		return original_id;
 	}
 
 }
