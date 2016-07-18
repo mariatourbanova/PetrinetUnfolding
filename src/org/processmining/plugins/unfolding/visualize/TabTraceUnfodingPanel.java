@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -41,10 +42,10 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
+import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
+import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
-import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.CloneBPMN;
-import org.processmining.plugins.unfolding.HistoryUnfolding;
 import org.processmining.plugins.unfolding.MyBCSUnfoldingVisualizePlugin;
 import org.processmining.plugins.unfolding.Palette;
 import org.processmining.plugins.unfolding.PetrinetNodeMod;
@@ -86,7 +87,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 	
 	public TabTraceUnfodingPanel(PluginContext context, ScalableViewPanel panel, String panelName,
-			HistoryUnfolding hu, StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, InfoConversionBP2PN info, LocalConfigurationMap local ){
+			 StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, LocalConfigurationMap local ){
 		super(new BorderLayout());
 		mapLocalColor = new HashMap<LocalConfiguration,Color>();
 		list = new ArrayList<LocalConfiguration>();
@@ -173,7 +174,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				if (clonato != null){
 					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArcColor());
 				}
-				
 				//archi entranti in previousNode, uscenti in clonato
 				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> previousNodeEdges = bpmncopia.getInEdges(previousNode);
 				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> clonatoEdges = bpmncopia.getOutEdges(clonato);

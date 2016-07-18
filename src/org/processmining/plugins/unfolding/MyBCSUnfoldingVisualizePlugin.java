@@ -22,7 +22,6 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.plugins.bpmn.BpmnEventBasedGateway;
-import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
 import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
@@ -37,7 +36,6 @@ public class MyBCSUnfoldingVisualizePlugin {
 	private StatisticMap output;
 	private StatisticMap statBPMN;
 	private UIPluginContext context; 
-	private InfoConversionBP2PN info = null;
 	private BPMNDiagram bpmn= null;
 	private CloneBPMN bpmncopia; 
 	private LocalConfigurationMap local;
@@ -79,10 +77,10 @@ public class MyBCSUnfoldingVisualizePlugin {
 			try{
 				bpmn = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.BPMN);
 				local =unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.LocalConfiguration);
-				info = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.InfoCBP2PN);
+				
 			}catch (Exception e) {
 				bpmn = null;
-				info = null;
+				
 			}
 			
 			BPMNDiagram bpmncopia= insertDefect(bpmn,output);
@@ -116,12 +114,12 @@ public class MyBCSUnfoldingVisualizePlugin {
 			panel.repaint();
 			
 			/*Sostituire la history con la localConfiguration*/
-			HistoryUnfolding hu = new HistoryUnfolding(unfolding);
+			
 
 			/*costruzione del widget inspector*/
 			
 			if(flag){
-				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding", hu, output, this, bpmn, info, local);
+				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding",  output, this, bpmn, local);
 			}
 			
 			/*Costruisco il pannello dell'Unfolding*/

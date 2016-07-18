@@ -12,13 +12,13 @@ public class TirocinioTest extends TestCase
    * 
    * @throws Throwable
    */
-  @Test
+ /* @Test
   public void testTirocinio1() throws Throwable 
   {
     String args[] = new String[] {"-l"};
     CLI.main(args);
   }
-  
+  */
   /**
    * Test che verifica la validita' dei plugin e li esegue utilizzando un file di test
    * 

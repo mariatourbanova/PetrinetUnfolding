@@ -6,7 +6,6 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.converters.bpmn2pn.BPMN2WorkflowSystemConverter;
-import org.processmining.plugins.converters.bpmn2pn.InfoConversionBP2PN;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.StatisticMap;
 
@@ -49,7 +48,7 @@ public class BPMN2Unfolding_Plugin
 			bpmn2Petrinet.convert(context);
 			petrinet = bpmn2Petrinet.getPetriNet();
 
-			InfoConversionBP2PN info = bpmn2Petrinet.getInfoConversionBP2PN();
+			
 
 			/* Converte la rete di Petri nella rete di unfolding */
 			writeLog(context, "Conversion of the Petri net in Unfolding net...");
@@ -61,7 +60,7 @@ public class BPMN2Unfolding_Plugin
 			
 			StatisticMap stm = (StatisticMap)unfolding[1];
 			stm.setReverseMap(bpmn2Petrinet.getReverseMap());
-			context.addConnection(new BCSUnfoldingConnection(stm, petrinet,(Petrinet) unfolding[0],info,bpmn, local));
+			context.addConnection(new BCSUnfoldingConnection(stm, petrinet,(Petrinet) unfolding[0],bpmn, local));
 			printstatistic(context,bpmn,petrinet, (Petrinet)unfolding[0]);
 
 			return new Object [] {unfolding[1], unfolding[0], petrinet};

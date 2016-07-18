@@ -832,9 +832,6 @@ public class BPMN2WorkflowSystemConverter
 	}
 	
 	
-	public InfoConversionBP2PN getInfoConversionBP2PN(){
-		InfoConversionBP2PN info = new InfoConversionBP2PN(startEventMap, endEventMap, flowMap,nodeMap,reverseMap);
-		return info;
-	}
+	
 	
 }
