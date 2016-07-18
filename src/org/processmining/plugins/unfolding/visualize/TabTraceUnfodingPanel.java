@@ -158,13 +158,12 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		ArrayList<Transition> elenco = localConfiguration.toArrayList(localConfiguration);
 		BPMNNode node = null;
 		BPMNNode previousNode = null;
-		Integer run = elenco.size();
 		for (Transition pn: elenco){
 			if (previousNode == null){
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArtColor());
+					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArcColor());
 				}	
 				previousNode = clonato;
 			}
@@ -172,7 +171,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArtColor());
+					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArcColor());
 				}
 				
 				//archi entranti in previousNode, uscenti in clonato
@@ -182,13 +181,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 					for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> to : clonatoEdges){
 						if (to.getEdgeID() == from.getEdgeID()){
 							
-							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArtColor());
+							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcColor());
 							to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
-							to.getAttributeMap().put(AttributeMap.LABEL, run.toString());
 							to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
 							to.getAttributeMap().put(AttributeMap.SHAPE, Color.RED);
-							
-							run--;
 							archi.add(to);
 							break;
 						}
@@ -197,11 +193,11 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				previousNode = clonato;
 			}
 		}
-//		Integer max = archi.size();
-//		for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> a : archi){
-//			a.getAttributeMap().put(AttributeMap.LABEL, max.toString());
-//			max--;	
-//		}
+		Integer max = archi.size();
+		for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> a : archi){
+			a.getAttributeMap().put(AttributeMap.LABEL, max.toString());
+			max--;	
+		}
 		return bpmncopia;	
 	}
 	
@@ -237,11 +233,11 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
 				BPMNNode node = null;
-				LocalConfiguration running = null; 
+				LocalConfiguration runningConf = null; 
 				ArrayList<Transition> lista = new ArrayList<Transition>();
 				if(list!=null){
-						running = list.get(rowIndex);
-						lista = running.toArrayList(running);
+						runningConf = list.get(rowIndex);
+						lista = runningConf.toArrayList(runningConf);
 						for (Transition t: lista){
 							node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);							
 							elencoBPMN = listing(reverseMap,lista);
@@ -380,7 +376,8 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		for (BPMNNode bp: alb){
 			elencoBPMN = bp.toString() + ", " + elencoBPMN;
 		}
-		return elencoBPMN.substring(0, (elencoBPMN.length())-2); //rimuovo l'ultima virgola
+		//rimuovo l'ultima virgola
+		return elencoBPMN.substring(0, (elencoBPMN.length())-2); 
 	}
 
 

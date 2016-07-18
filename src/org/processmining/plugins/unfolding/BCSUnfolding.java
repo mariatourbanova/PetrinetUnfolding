@@ -3,6 +3,8 @@ package org.processmining.plugins.unfolding;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,10 +28,11 @@ import org.processmining.support.unfolding.Utility;
  * Converte un rete di Petri in una BCS unfolding
  * 
  * @author Daniele Cicciarella e Francesco Boscia
+ * @param <syncronized>
  */
 public class BCSUnfolding
 {	
-	Boolean concurrentVersion = false;
+	Boolean concurrentVersion = true;
 	/* Contesto di ProM */
 	protected PluginContext context;
 
@@ -42,17 +45,17 @@ public class BCSUnfolding
 
 	/* Coda contenente le configurazioni da analizzare */
 	protected LinkedList <LocalConfiguration> queue = new LinkedList <LocalConfiguration>();
-	protected ConcurrentLinkedQueue <LocalConfiguration> concurrentQueue = new ConcurrentLinkedQueue <LocalConfiguration>();
+	protected ConcurrentLinkedQueue<LocalConfiguration> concurrentQueue = new ConcurrentLinkedQueue<LocalConfiguration>();
 
 	
 	/* Mappa ogni nodo della rete di Petri a un uno o più nodi della rete di unfolding */
-	protected HashMap <PetrinetNode, ArrayList<PetrinetNode>> petri2UnfMap = new HashMap <PetrinetNode, ArrayList<PetrinetNode>>();
+	protected Map <PetrinetNode, ArrayList<PetrinetNode>> petri2UnfMap = new ConcurrentHashMap <PetrinetNode, ArrayList<PetrinetNode>>();
 
 	/* Mappa ogni nodo della rete di unfolding a un nodo della rete di Petri */
-	protected HashMap <PetrinetNode, PetrinetNode> unf2PetriMap = new HashMap <PetrinetNode, PetrinetNode>();
+	protected Map  <PetrinetNode, PetrinetNode> unf2PetriMap = new ConcurrentHashMap <PetrinetNode, PetrinetNode>();
 
 	/* Mappa ogni transizione della rete di unfolding con il rispettivo marking */
-	protected HashMap <PetrinetNode, ArrayList<PetrinetNode>> markingMap = new HashMap <PetrinetNode, ArrayList<PetrinetNode>>();
+	protected Map <PetrinetNode, ArrayList<PetrinetNode>> markingMap = new ConcurrentHashMap <PetrinetNode, ArrayList<PetrinetNode>>();
 
 	/* Mappa ogni transizione con storia dei suoi xor-split  */
 	//protected HashMap <PetrinetNode, ArrayList<Pair>> xorMap = new HashMap <PetrinetNode, ArrayList<Pair>>();
@@ -64,7 +67,8 @@ public class BCSUnfolding
 	protected StatisticMap statisticMap = new StatisticMap();
 
 	/*PoolThread to manage Visit*/
-	ExecutorService executor = Executors.newCachedThreadPool();
+	protected int poolSize =4;
+	protected ExecutorService executor = Executors.newFixedThreadPool(poolSize);
 	
 	/**
 	 * Costruttore
@@ -105,26 +109,36 @@ public class BCSUnfolding
 		initQueue(i, i1);		
 		if (concurrentVersion == true){
 			if (concurrentQueue != null){
-			ThreadVisit tv = new ThreadVisit(concurrentQueue, unf2PetriMap, petrinet, unfolding,
-				petri2UnfMap,
-				markingMap,
-				statisticMap, localConfigurationMap,
-				i,o,reset);		
-		System.out.println("Excector: " + executor.toString());
-		executor.execute(tv);
-		System.out.println("Excector: " + executor.toString());
-			}	System.out.println("ConcurrentQueue vuota");
+				ArrayList<ThreadVisit> workers = new ArrayList<ThreadVisit>();
+				for (int i = 0; i < poolSize; i++){ 
+					ThreadVisit tv = new ThreadVisit(reset, concurrentQueue, unf2PetriMap, petrinet, petri2UnfMap, unfolding, statisticMap, markingMap, localConfigurationMap);
+					workers.add(tv);
+					executor.execute(tv);
+				}
+			}	else System.out.println("ConcurrentQueue vuota");
 		}
 		else 
-		{System.out.println("visitQueue");
-			visitQueue();}	
-			
-			
-		/* Estraggo i deadlock ed effettuo le statistiche della rete */
+		{
+		System.out.println("visitQueue");
+		visitQueue();	
 		writeLog(context, "Extraction of the dealock points...");
 		getStatistics();
+		}
+		executor.shutdown();
+		while(!executor.isTerminated()){
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		/* Estraggo i deadlock ed effettuo le statistiche della rete */
 
-		return new Object [] {unfolding, statisticMap};
+		getStatistics();
+		
+		
+ 		return new Object [] {unfolding, statisticMap};
 	}
 	
 
@@ -135,7 +149,7 @@ public class BCSUnfolding
 	 * @param p1 piazza iniziale della rete di unfolding
 	 */
 	private void initQueue(Place p, Place p1) 
-	{
+	{		
 		/* Per tutte le transizioni t della rete di petri attaccate alla piazza iniziale p */
 		for(DirectedGraphEdge<?, ?> a1: petrinet.getGraph().getOutEdges(p))
 		{
@@ -151,7 +165,6 @@ public class BCSUnfolding
 			Transition t1 = unfolding.addTransition(t.getLabel());
 			t1.getAttributeMap().put("Original id", id);
 			unfolding.addArc(p1, t1);			
-
 			/* Per tutti i place u delle rete di petri attaccate a t */
 			for(DirectedGraphEdge<?, ?> a2: petrinet.getGraph().getOutEdges(t))
 			{
@@ -165,9 +178,13 @@ public class BCSUnfolding
 			/* Aggiorno tutte le strutture globali e la coda */
 			refreshCorrispondence(t, t1);
 			//queue risorsa condivisa
-			queue.add(localConfigurationMap.get(t1));			
+			if (concurrentVersion == true)
+				concurrentQueue.add(localConfigurationMap.get(t1));
+			else 
+				queue.add(localConfigurationMap.get(t1));			
 		}
-	}
+		}
+	
 
 	/**
 	 * Alg3: Visito la coda di priorità per la creazione della rete di Petri
@@ -514,7 +531,6 @@ public class BCSUnfolding
 		{
 			localConfigurationMap.add(pn1, unfolding);
 			markingMap.put(pn1, Utility.getMarking(petrinet, localConfigurationMap.get(pn1), unf2PetriMap));
-			//xorMap.put(pn1, Utility.getHistoryXOR(unfolding, pn1, null));
 		}
 	}
 

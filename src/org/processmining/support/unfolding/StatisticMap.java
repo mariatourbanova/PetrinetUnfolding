@@ -1,7 +1,6 @@
 package org.processmining.support.unfolding;
 
 
-	import java.awt.Color;
 	import java.util.ArrayList;
 	import java.util.HashMap;
 	import java.util.Map;
@@ -13,7 +12,6 @@ package org.processmining.support.unfolding;
 	import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 	import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 	import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
-	import org.processmining.plugins.converters.bpmn2pn.BPMN2WorkflowSystemConverter;
 	import org.processmining.plugins.unfolding.PetrinetNodeMod;
 	import org.processmining.plugins.unfolding.UtilitiesforMapping;
 
@@ -34,8 +32,6 @@ package org.processmining.support.unfolding;
 		private static final String DEADLOCK = "Deadlock";
 		private static final String DEAD = "Dead";
 		private Palette pal = new Palette();
-//		private Color deadColor = new Color(255,82,82);
-	//	private Color cutColor = new Color(0,255,255);
 
 		/* Variabili utilizzate per le statistiche */
 		private int nArcs = 0, nPlaces = 0, nTransitions = 0;
@@ -77,7 +73,7 @@ package org.processmining.support.unfolding;
 		 * 
 		 * @param cutoff cutoff da aggiungere
 		 */
-		public void addCutoff(Transition cutoff) 
+		public synchronized void addCutoff(Transition cutoff) 
 		{
 			cutoff.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());
 			get(CUTOFF).add(cutoff);
@@ -98,7 +94,7 @@ package org.processmining.support.unfolding;
 		 * 
 		 * @param cutoff cutoff da aggiungere
 		 */
-		public void addCutoffUnbounded(Transition cutoff)
+		public synchronized void addCutoffUnbounded(Transition cutoff)
 		{
 			cutoff.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());
 			get(CUTOFF_UNBOUNDED).add(cutoff);
@@ -163,7 +159,7 @@ package org.processmining.support.unfolding;
 		 * @param N1 rete di unfolding
 		 * @param L1 mappa da N a N' 
 		 */
-		public void setStatistic(Petrinet N, Petrinet N1, HashMap<PetrinetNode, ArrayList<PetrinetNode>> L1)
+		public void setStatistic(Petrinet N, Petrinet N1, Map<PetrinetNode, ArrayList<PetrinetNode>> L1)
 		{
 			/* Statistiche della rete */
 			nPlaces = N1.getPlaces().size();

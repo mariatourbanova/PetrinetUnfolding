@@ -34,7 +34,7 @@ public class Palette{
 		return cutColor;
 	}
 	
-	public Color getArtColor(){
+	public Color getArcColor(){
 		return arcColor;
 	}
 }

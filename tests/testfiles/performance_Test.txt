@@ -1,5 +1,5 @@
 print("Starting example script: BPMN to PN...");
-String testFileRoot = System.getProperty("user.dir") + "/tests/testfiles/bpmn/bp";
+String testFileRoot = System.getProperty("user.dir") + "/tests/testfiles/bpmn";
 String exportFileRoot = System.getProperty("user.dir") + "/tests/testfiles/pn";
 
 
