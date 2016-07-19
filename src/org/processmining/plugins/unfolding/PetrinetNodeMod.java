@@ -1,6 +1,5 @@
 package org.processmining.plugins.unfolding;
 
-import org.processmining.models.graphbased.AbstractGraphNode;
 import org.processmining.models.graphbased.directed.AbstractDirectedGraph;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
@@ -14,13 +13,11 @@ public class PetrinetNodeMod extends PetrinetNode  {
 			AbstractDirectedGraph<PetrinetNode, PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> net,
 			ExpandableSubNet parent, String label) {
 		super(net, parent, label);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public PetrinetNodeMod(PetrinetNode pn){
 		super(pn.getGraph(), pn.getParent(), pn.getLabel());
-		this.original_id = pn.getAttributeMap().get("Original id").toString();
-		
+		this.original_id = pn.getAttributeMap().get("Original id").toString();		
 	}
 	
 	public int hashCode() {
@@ -35,12 +32,11 @@ public class PetrinetNodeMod extends PetrinetNode  {
 		PetrinetNodeMod node = (PetrinetNodeMod) o;
 		if(original_id.length()>0)
 			return original_id.equals(node.getOID());
-				
-		
+
 		return node.getLabel().trim().equals(getLabel().trim());
 	}
 
-	private String getOID() {
+	public String getOID() {
 		
 		return original_id;
 	}

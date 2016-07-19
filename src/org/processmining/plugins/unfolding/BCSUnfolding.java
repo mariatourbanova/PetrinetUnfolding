@@ -1,7 +1,6 @@
 package org.processmining.plugins.unfolding;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,8 +26,7 @@ import org.processmining.support.unfolding.Utility;
 /**
  * Converte un rete di Petri in una BCS unfolding
  * 
- * @author Daniele Cicciarella e Francesco Boscia
- * @param <syncronized>
+ * @author Daniele Cicciarella,Francesco Boscia
  */
 public class BCSUnfolding
 {	
@@ -129,7 +127,6 @@ public class BCSUnfolding
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -164,16 +161,22 @@ public class BCSUnfolding
 			
 			Transition t1 = unfolding.addTransition(t.getLabel());
 			t1.getAttributeMap().put("Original id", id);
-			unfolding.addArc(p1, t1);			
+			Arc arc = unfolding.addArc(p1, t1);
+			arc.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
 			/* Per tutti i place u delle rete di petri attaccate a t */
 			for(DirectedGraphEdge<?, ?> a2: petrinet.getGraph().getOutEdges(t))
 			{
 				// Creo un place u1 nell'unfolding e attacco t1 con u1
 				Place u = (Place) a2.getTarget();
+				u.getAttributeMap().put("Original id", t.getAttributeMap().get("Original id"));
 				Place u1 = unfolding.addPlace(u.getLabel());
-				unfolding.addArc(t1, u1);				
+				u1.getAttributeMap().put("Original id", t.getAttributeMap().get("Original id"));
+				
+				arc = unfolding.addArc(t1, u1);				
+				arc.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
+
 				refreshCorrispondence((PetrinetNode) u, u1);
-			}
+				}
 
 			/* Aggiorno tutte le strutture globali e la coda */
 			refreshCorrispondence(t, t1);
@@ -240,8 +243,7 @@ public class BCSUnfolding
 					/* Crea le combinazioni e filtra quelle già usate */
 					combination = new ArrayList <Combination> (sizeCombination);
 					Combination.create(possibleCombination, combination);
-					//System.out.println(possibleCombination);
-
+		
 					Combination.filter(combination, (Transition) t2, petri2UnfMap, unfolding);
 
 					/* Per ogni combinazione rimanente */
@@ -258,8 +260,8 @@ public class BCSUnfolding
 						t3.getAttributeMap().put("Original id",id);		
 
 						for(int i = 0; i < comb.getElements().length; i++)
-							unfolding.addArc((Place) comb.getElements()[i], t3);
-
+							  unfolding.addArc((Place) comb.getElements()[i], t3);
+						
 						// Verifico se l'inserimento di t3 provaca conflitto in tal caso la elimino
 						if(comb.isConflict(unfolding, t3))
 						{
@@ -300,7 +302,6 @@ public class BCSUnfolding
 					}
 				}
 			}
-			//System.out.println(localConfigurationMap);
 		}
 	}
 

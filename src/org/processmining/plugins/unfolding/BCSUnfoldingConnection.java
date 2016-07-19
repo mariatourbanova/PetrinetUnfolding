@@ -9,7 +9,7 @@ import org.processmining.support.unfolding.StatisticMap;
 /**
  * Connettore per la visualizzazione delle rete di Petri originale, rete di Occorrenze con la tecnica dell'unfolding e le sue statistiche
  * 
- * @author Daniele Cicciarella
+ * @author Daniele Cicciarella,Francesco Boscia
  */
 public class BCSUnfoldingConnection extends AbstractStrongReferencingConnection 
 {	

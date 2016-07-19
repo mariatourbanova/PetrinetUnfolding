@@ -25,7 +25,7 @@ public class PetriNet2Unfolding_Plugin
 	@UITopiaVariant
 	(
 		affiliation = "University of Pisa", 
-		author = "Daniele Cicciarella", 
+		author = "Daniele Cicciarella, Francesco Boscia", 
 		email = "cicciarellad@gmail.com"
 	)
 	public Object[] convert(PluginContext context, Petrinet petrinet) 

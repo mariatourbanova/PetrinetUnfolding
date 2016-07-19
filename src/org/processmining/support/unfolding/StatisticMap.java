@@ -7,6 +7,7 @@ package org.processmining.support.unfolding;
 	import org.processmining.plugins.unfolding.Palette;
 	import org.processmining.models.graphbased.AttributeMap;
 	import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
+	import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 	import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 	import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 	import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
@@ -42,6 +43,10 @@ package org.processmining.support.unfolding;
 		private int nArcsBPMN = 0, nGateway = 0, nActivity = 0,
 				nEvents = 0, nMessageFlow = 0, nPool =0;
 
+		
+		/* Maps each place to BPMN control-flow edge   */
+		private Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> flowMapBPtoPN;
+		
 		/**
 		 * Costruttore
 		 */
@@ -472,16 +477,14 @@ package org.processmining.support.unfolding;
 							if (element == 0){
 								out += "The graph does not contain cutoff points<BR><BR>";
 							} else {
-							out += "The graph contains " + element + " cutoff points:<ol>";
-							out += temp;
-							}
-							switch(element){
-							case 0:{out += "The graph does not contain cutoff points<BR><BR>"; break;}
-							case 1:{out += "The graph contains " + element + " cutoff point:<ol>"; 
-							out += temp; break;}
-							default:{out += "The graph contains " + element + " cutoff points:<ol>";
-							out += temp; break;}	
-							}
+								switch(element){
+								case 0:{out += "The graph does not contain cutoff points<BR><BR>"; break;}
+								case 1:{out += "The graph contains " + element + " cutoff point:<ol>"; 
+								out += temp; break;}
+								default:{out += "The graph contains " + element + " cutoff points:<ol>";
+								out += temp; break;}	
+								}
+							}	
 						}
 						break;
 					}
@@ -583,6 +586,17 @@ package org.processmining.support.unfolding;
 			return out;
 		}
 
+
+		public void setFlowMap(Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> map) {
+			
+			this.flowMapBPtoPN=map;
+		}
+
+
+		public Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> getFlowMapBPtoPN() {
+			return flowMapBPtoPN;
+		}
+		
 		
 	}
 

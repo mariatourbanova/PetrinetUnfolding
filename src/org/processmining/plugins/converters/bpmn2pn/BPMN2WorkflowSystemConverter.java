@@ -35,7 +35,7 @@ import org.processmining.plugins.unfolding.PetrinetNodeMod;
 /**
  * Convert a model BPMN in a Worflow System
  *
- * @author Daniele Cicciarella
+ * @author Daniele Cicciarella, Francesco Boscia
  */
 public class BPMN2WorkflowSystemConverter 
 {	
@@ -58,6 +58,13 @@ public class BPMN2WorkflowSystemConverter
 	/* Maps each BPMN control-flow edge to a place */
 	private Map<BPMNEdge<BPMNNode, BPMNNode>, Place> flowMap = new HashMap<BPMNEdge<BPMNNode, BPMNNode>, Place>();
 
+
+	/* Maps each place to BPMN control-flow edge   */
+	private Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> flowMapBPtoPN = new HashMap<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>>();
+
+
+	
+	
 	/* Maps each BPMN node to a set of Petri net nodes (transitions and places) */
 	private Map<BPMNNode, Set<PetrinetNode>> nodeMap = new HashMap<BPMNNode, Set<PetrinetNode>>();
 	
@@ -99,7 +106,10 @@ public class BPMN2WorkflowSystemConverter
 		for (Flow f : bpmn.getFlows()) 
 		{
 			Place p = net.addPlace(f.getSource().getLabel()+"_"+f.getTarget().getLabel()+"_"+f.getLabel());
+			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
+			flowMapBPtoPN.put(new PetrinetNodeMod(p), (BPMNEdge<BPMNNode, BPMNNode>) f);
 			flowMap.put(f, p);
+			
 		}
 	}
 
@@ -111,6 +121,8 @@ public class BPMN2WorkflowSystemConverter
 		for (MessageFlow f : bpmn.getMessageFlows()) 
 		{
 			Place p = net.addPlace("interface_" + f.getSource().getLabel()+"_"+f.getTarget().getLabel()+"_"+f.getLabel());
+			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
+			flowMapBPtoPN.put(new PetrinetNodeMod(p), (BPMNEdge<BPMNNode, BPMNNode>)f);
 			flowMap.put(f, p);
 		}
 	}	
@@ -149,9 +161,8 @@ public class BPMN2WorkflowSystemConverter
 	{
 		Place p = net.addPlace("p_start_" + e.getLabel());
 		Transition t = net.addTransition("t_start_"+e.getLabel());
-		
+		p.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
 		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
-		
 		reverseMap.put(new PetrinetNodeMod(t), e);
 		net.addArc(p, t);
 		
@@ -177,10 +188,12 @@ public class BPMN2WorkflowSystemConverter
 			if (f instanceof Flow) 
 			{
 				net.addArc(flowMap.get(f), t);
+//				t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
 			}
 			if (f instanceof MessageFlow) 
 			{
 				net.addArc(flowMap.get(f), t);
+				t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
 			}
 		}
 		setNodeMapFor(nodeMap, e, p, t);
@@ -501,9 +514,8 @@ public class BPMN2WorkflowSystemConverter
 			{
 				BPMNNode target = f.getTarget();
 				Place p = flowMap.get(f);
-				//p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
+				p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
 
-				//reverseMap.put(new PetrinetNodeMod(p), g);
 				for(PetrinetEdge<?,?> outnet : p.getGraph().getOutEdges(p)){
 					PetrinetNode targetT = outnet.getTarget();
 					net.addArc(src, (Transition)targetT);
@@ -511,6 +523,7 @@ public class BPMN2WorkflowSystemConverter
 				}
 				net.removePlace(p);
 				flowMap.remove(f);
+				flowMapBPtoPN.put(new PetrinetNodeMod(src),(BPMNEdge<BPMNNode, BPMNNode>)f);
 				flowMap.put((Flow) f, src);
 				
 			}
@@ -818,15 +831,10 @@ public class BPMN2WorkflowSystemConverter
 		return reverseMap;
 	}
 	
-	/*public  BPMNNode getBPMNNodeFromReverseMap(PetrinetNode pn){
-	//	reverseMap.forEach((k,v) -> {if(pn.equals(k)) return v;});
-		/**for (int i = 0; i < reverseMap.size(); i++){
-			if(reverseMap.containsKey(pn)){
-			System.out.println("risultato reverseMap.get: " + reverseMap.get(pn));}}
-		**/
-	/*	return reverseMap.get(pn);
-	}*/
-	
+	public Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> getFlowMapBPtoPN() {
+		return flowMapBPtoPN;
+	}
+
 	public void printReverseMap(){
 		reverseMap.forEach((k,v) -> System.out.println("key: "+k+" value:"+v));
 	}

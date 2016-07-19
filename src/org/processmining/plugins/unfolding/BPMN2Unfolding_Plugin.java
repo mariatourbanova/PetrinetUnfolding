@@ -12,7 +12,7 @@ import org.processmining.support.unfolding.StatisticMap;
 /**
  * Converte un BPMNDiagram in una Occurrence net with Unfolding
  * 
- * @author Daniele Cicciarella
+ * @author Daniele Cicciarella, Francesco Boscia
  */
 public class BPMN2Unfolding_Plugin 
 {
@@ -60,6 +60,7 @@ public class BPMN2Unfolding_Plugin
 			
 			StatisticMap stm = (StatisticMap)unfolding[1];
 			stm.setReverseMap(bpmn2Petrinet.getReverseMap());
+			stm.setFlowMap(bpmn2Petrinet.getFlowMapBPtoPN());
 			context.addConnection(new BCSUnfoldingConnection(stm, petrinet,(Petrinet) unfolding[0],bpmn, local));
 			printstatistic(context,bpmn,petrinet, (Petrinet)unfolding[0]);
 

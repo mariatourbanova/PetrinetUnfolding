@@ -1,21 +1,15 @@
 package org.processmining.plugins.unfolding;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.processmining.models.graphbased.AttributeMap;
-import org.processmining.models.graphbased.directed.DirectedGraph;
 import org.processmining.models.graphbased.directed.DirectedGraphElement;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Arc;
-import org.processmining.models.graphbased.directed.petrinet.elements.InhibitorArc;
 import org.processmining.models.graphbased.directed.petrinet.elements.Place;
-import org.processmining.models.graphbased.directed.petrinet.elements.ResetArc;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
-import org.processmining.models.graphbased.directed.petrinet.impl.AbstractResetInhibitorNet;
-import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory;
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetImpl;
 
 public class PetriNetClone extends PetrinetImpl {
@@ -24,7 +18,6 @@ public class PetriNetClone extends PetrinetImpl {
 
 	public PetriNetClone(String label) {
 		super(label);
-		// TODO Auto-generated constructor stub
 	}
 
 	public void cloneFrom(Petrinet net,
@@ -47,7 +40,6 @@ public class PetriNetClone extends PetrinetImpl {
 			}
 		}
 		if (arcs) {
-			
 			for (  PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> e:net.getEdges()) {
 				if(e instanceof Arc){
 				Arc a = (Arc) e;
@@ -57,14 +49,11 @@ public class PetriNetClone extends PetrinetImpl {
 			}
 		}
 		
-
 		getAttributeMap().clear();
 		AttributeMap map = net.getAttributeMap();
 		for (String key : map.keySet()) {
 			getAttributeMap().put(key, map.get(key));
 		}
-
-		//return mapping;
 	}
 
 }

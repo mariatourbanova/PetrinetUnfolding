@@ -24,7 +24,6 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 
 	public CloneBPMN(String label) {
 		super(label);
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override

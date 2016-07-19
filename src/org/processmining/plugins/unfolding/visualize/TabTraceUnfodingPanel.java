@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -66,7 +65,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	/**
 	 * 
 	 */
-
 
 
 	protected SlickerFactory factory = SlickerFactory.instance();
@@ -156,35 +154,56 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		BPMNDiagram bpmnoriginal = visualizeUnfoldingStatistics_Plugin.getOriginalBpmn();
 		CloneBPMN bpmncopia = new CloneBPMN(bpmnoriginal.getLabel());
 		bpmncopia.cloneFrom(bpmnoriginal);
-		ArrayList<Transition> elenco = localConfiguration.toArrayList(localConfiguration);
+		BPMNEdge<BPMNNode, BPMNNode> arcoDead = null;
 		BPMNNode node = null;
 		BPMNNode previousNode = null;
-		for (Transition pn: elenco){
+		for (Transition pn: localConfiguration.get()){
 			if (previousNode == null){
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArcColor());
-				}	
+					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
+				}
+				
+				Color c = mapLocalColor.get(localConfiguration);
+				
+				if(c.equals(pal.getDeadColor())){
+					/*Prendo l'arco uscenti dal pn dell'unfolding*/
+					Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = pn.getGraph().getOutEdges(pn);
+					for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>   edge :edges ){
+						/*Prendo il PetrinetNode bersaglio dell'arco*/
+						PetrinetNode target = edge.getTarget();
+						/*controllo se è nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente*/ 
+						for (PetrinetNodeMod u :statistiunf.getFlowMapBPtoPN().keySet()){
+							if (u.getLabel()==target.getLabel()){
+								BPMNEdge<BPMNNode, BPMNNode> arcoBPMN = statistiunf.getFlowMapBPtoPN().get(u);
+								/*prendo l'arco BPMN della rete clonata*/
+								arcoDead = visualizeUnfoldingStatistics_Plugin.getArcInClone(bpmncopia, arcoBPMN);
+								arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, Color.GREEN);							
+							}
+						}
+
+						}
+				
+				}
+				
 				previousNode = clonato;
 			}
 			else{
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getArcColor());
+					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
 				}
 				//archi entranti in previousNode, uscenti in clonato
 				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> previousNodeEdges = bpmncopia.getInEdges(previousNode);
 				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> clonatoEdges = bpmncopia.getOutEdges(clonato);
 				for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> from : previousNodeEdges){
 					for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> to : clonatoEdges){
-						if (to.getEdgeID() == from.getEdgeID()){
-							
-							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcColor());
+						if (to.getEdgeID() == from.getEdgeID()){							
+							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
 							to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
 							to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
-							to.getAttributeMap().put(AttributeMap.SHAPE, Color.RED);
 							archi.add(to);
 							break;
 						}
@@ -198,6 +217,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			a.getAttributeMap().put(AttributeMap.LABEL, max.toString());
 			max--;	
 		}
+		
+		if(arcoDead != null){
+			arcoDead.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
+			arcoDead.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);}
 		return bpmncopia;	
 	}
 	

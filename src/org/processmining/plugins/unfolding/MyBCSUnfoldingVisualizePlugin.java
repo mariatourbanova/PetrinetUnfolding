@@ -13,9 +13,11 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.contexts.uitopia.annotations.Visualizer;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.models.graphbased.AttributeMap;
+import org.processmining.models.graphbased.EdgeID;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
+import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
@@ -97,7 +99,6 @@ public class MyBCSUnfoldingVisualizePlugin {
 		try{
 			double size [] [] = {{TableLayoutConstants.FILL} , {TableLayoutConstants.FILL,TableLayoutConstants.FILL}};
 			panel.setLayout(new TableLayout(size));
-			
 
 			/*Costruisco le statistiche del BPMN graph*/
 			statBPMN.setStatistic(bpmn);
@@ -113,11 +114,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 			panel.revalidate();
 			panel.repaint();
 			
-			/*Sostituire la history con la localConfiguration*/
-			
-
 			/*costruzione del widget inspector*/
-			
 			if(flag){
 				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding",  output, this, bpmn, local);
 			}
@@ -155,12 +152,6 @@ public class MyBCSUnfoldingVisualizePlugin {
 		return petrinet;
 	}
 	
-//	private static boolean confrontoBPMNnode(BPMNNode bpmnNode, BPMNNode bn){
-//		if (bpmnNode != null && bn != null){
-//			if ((bpmnNode.getLabel()).equals(bn.getLabel())) return true;
-//		}return false;
-//	}
-//	
 	public BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
 		Set<BPMNNode> elenco = bpmn.getNodes();
 		if(node!=null)
@@ -170,15 +161,41 @@ public class MyBCSUnfoldingVisualizePlugin {
 			if( idoc.toString().equals(inode.toString())){
 				return nodeclone;
 			}
-			/*
-			if(nodeclone.getLabel()!=null)
-				if(confrontoBPMNnode(nodeclone,node)){
-					return nodeclone;
-			}*/
 		}
 		return null;
 	}
-
+	
+	public BPMNEdge<BPMNNode, BPMNNode> getArcInClone(BPMNDiagram bpmn,BPMNEdge<BPMNNode, BPMNNode> arc){
+		Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> elencoArchi = bpmn.getEdges();
+		if(arc!=null)
+		for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> arcClone: elencoArchi){
+			Object idoc = arcClone.getAttributeMap().get("Original id");
+			Object inode = arc.getAttributeMap().get("Original id");
+			if( idoc.toString().equals(inode.toString())){
+				return (BPMNEdge<BPMNNode, BPMNNode>) arcClone;
+			}
+		}
+		return null;
+	}
+	/*
+	public BPMNEdge<? extends BPMNNode, ? extends BPMNNode> getEdgeinClone(BPMNDiagram bpmn,BPMNEdge<BPMNNode, BPMNNode> f){
+		 Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> elenco = bpmn.getEdges();
+		if(f!=null)
+		for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> flowclone: elenco){
+			//prendere original Id dall'edge
+			Object idoc = flowclone.getAttributeMap().get("Original id");
+			
+			//Object inode = f.getAttributeMap().get("Original id");
+			System.out.println("idoc = " + idoc.toString() + " f = " + f.toString()  );
+			//confrontare Origianl Id
+			if( idoc.toString().equals(f.toString())){
+				//ritornare edge clonato
+				return flowclone;
+			}
+		}
+		return null;
+	}
+*/
 	
 private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		//Clono il BPMN diagram

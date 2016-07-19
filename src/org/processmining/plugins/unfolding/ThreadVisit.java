@@ -1,21 +1,17 @@
 package org.processmining.plugins.unfolding;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.processmining.models.graphbased.directed.DirectedGraphEdge;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
-import org.processmining.models.graphbased.directed.petrinet.elements.Arc;
 import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.support.localconfiguration.LocalConfiguration;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.Combination;
-import org.processmining.support.unfolding.Pair;
 import org.processmining.support.unfolding.StatisticMap;
 import org.processmining.support.unfolding.Utility;
 
@@ -61,8 +57,9 @@ public class ThreadVisit implements Runnable {
 					{
 
 						Place p = (Place) a1.getTarget();
+						p.getAttributeMap().put("Original id", a1.getAttributeMap().get("Original id"));
 						Place pi = getPrecedent(t1, p);
-
+						pi.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
 						/* Per ogni transizione t2 delle rete originale attaccate a p */
 						for(DirectedGraphEdge<?, ?> a2: petrinet.getGraph().getOutEdges(p))
 						{
@@ -96,8 +93,7 @@ public class ThreadVisit implements Runnable {
 							/* Crea le combinazioni e filtra quelle già usate */
 							combination = new ArrayList <Combination> (sizeCombination);
 							Combination.create(possibleCombination, combination);
-							//System.out.println(possibleCombination);
-
+						
 							Combination.filter(combination, (Transition) t2, petri2UnfMap, unfolding);
 
 							/* Per ogni combinazione rimanente */
@@ -129,13 +125,10 @@ public class ThreadVisit implements Runnable {
 								/* Verifico se t3 provoca cutoff */
 								if(t2.equals(reset))
 								{ 
-
-
 									if(markingMap.get(t3).size() == 0)
 										statisticMap.addCutoff((Transition) t3);
 									else  
 										statisticMap.addCutoffUnbounded((Transition) t3);
-
 								}
 								else
 								{							
@@ -256,155 +249,4 @@ public class ThreadVisit implements Runnable {
 		else
 			return false;
 	}
-
-
-	/**
-	 * Estraggo i deadlock ed effettuo le statistiche della rete
-	 */
-	private void getStatistics()
-	{		
-		/* Inserisco i livelock trovati in un lista */
-		ArrayList <Transition> cutoff = new ArrayList <Transition> (statisticMap.getCutoff().size() + statisticMap.getCutoffUnbounded().size());
-		for(int i = 0; i < statisticMap.getCutoff().size(); i++)
-			cutoff.add(statisticMap.getCutoff().get(i));
-		for(int i = 0; i < statisticMap.getCutoffUnbounded().size(); i++)
-			cutoff.add(statisticMap.getCutoffUnbounded().get(i));
-
-		/* Filtro i punti di cutoff per ottenere un primo insieme di spoilers */
-		ArrayList<Transition> spoilers = filterCutoff(cutoff);
-
-		/* Individuo i deadlock */
-		ArrayList <Transition> deadlock = getDeadlock(cutoff, spoilers);		
-		if(deadlock != null)
-			statisticMap.setDeadlock(deadlock);
-
-		/* Inserisco le altre statistiche */
-		statisticMap.setStatistic(petrinet, unfolding, petri2UnfMap);
-	}
-
-	/**
-	 * @param cutoff
-	 * @return
-	 */
-	private ArrayList<Transition> filterCutoff(ArrayList<Transition> cutoff) 
-	{
-		ArrayList <Transition> cutoffHistory = new ArrayList <Transition> (), filter = new ArrayList <Transition>();
-
-		/* */
-		for(Transition v: cutoff)
-		{ 
-			cutoffHistory = new ArrayList <Transition> ();
-			for(Transition u: localConfigurationMap.get(v).get())
-				if(!cutoffHistory.contains(u))
-					cutoffHistory.add(u);
-
-
-			/* */
-			for(Place p : unfolding.getPlaces())
-			{
-				if(unfolding.getGraph().getOutEdges(p).size() > 1)
-				{
-					for (DirectedGraphEdge<? ,?> a : unfolding.getGraph().getOutEdges(p)) 
-					{
-						Arc arc = (Arc) a;
-						Transition t = (Transition) arc.getTarget();
-						if(!filter.contains(t) && !cutoffHistory.contains(t) && !(cutoff.contains(t)))
-							filter.add(t);
-					}
-				}
-			}
-		}
-		return filter;		
-	}
-
-	/**
-	 * Estrae i punti di deadlock
-	 * 
-	 * @param cutoff: arraylist contenente i punti di cutoff
-	 * @return arraylist contenente i punti di deadlock
-	 */
-	private ArrayList<Transition> getDeadlock(ArrayList<Transition> cutoff, ArrayList<Transition> spoilers) 
-	{
-		Transition s = null;
-		ArrayList <Transition> deadlock = null, cutoff1 = null, spoilers2 = null;
-
-		if(!cutoff.isEmpty())
-		{		
-			Transition t = cutoff.get(0);
-			ArrayList<Transition> spoilers1 = getSpoilers(t, spoilers);	
-			while(!spoilers1.isEmpty() && deadlock == null)
-			{
-				s = spoilers1.remove(0);
-				cutoff1 = removeConflict(cutoff, s);
-				spoilers2 = removeConflict(spoilers, s);
-				if(cutoff1.isEmpty())
-				{
-					deadlock = new ArrayList <Transition>();
-					deadlock.add(s);
-				}
-				else
-				{
-					deadlock = getDeadlock(cutoff1, spoilers2);
-					if(deadlock != null)
-						deadlock.add(s);
-				}
-			}
-			return deadlock;
-		}
-		else
-			return null;
-	}
-
-	/**
-	 * Prendo tutte le transizioni che sono in conflitto con il cutoff
-	 * 
-	 * @param t: cutoff scelto
-	 * @return spoilers: arraylist di transizioni contenenti tutte le transizioni in conflitto con il cutoff
-	 */
-	private ArrayList<Transition> getSpoilers(Transition t, ArrayList<Transition> set) 
-	{
-		/* Se è vuota ritorna lista vuota */
-		if(set.isEmpty())
-			return new ArrayList <Transition> ();
-		else
-		{
-			ArrayList<Transition> spoilers = new ArrayList <Transition> ();
-			ArrayList<Pair> xorT = Utility.getHistoryXOR(unfolding, t, null);// xorMap.get(t);
-
-			/* Se sono in conflitto le aggiungo alla nuova lista */
-			for(Transition t1: set)
-				if(Utility.isConflict(xorT, Utility.getHistoryXOR(unfolding, t1, null)/*xorMap.get(t1)*/))
-					spoilers.add(t1);	
-			return spoilers;
-		}
-	}
-
-	/**
-	 * Scelto come nuovo insieme quelle che non sono in conflitto con lo spoiler
-	 * 
-	 * @param cutoff: insieme corrente di cutoff
-	 * @param spoiler: spoiler corrente
-	 * @return cutoff1: arraylist di transizioni contenente la nuova lista di cutoff
-	 */
-	private ArrayList<Transition> removeConflict(ArrayList<Transition> cutoff, Transition spoiler) 
-	{	
-		/* Se è vuota ritorna lista vuota */
-		if(cutoff.isEmpty())
-			return  new ArrayList<Transition>();
-		else
-		{
-			ArrayList<Transition> cutoff1 = new ArrayList <Transition> ();
-			ArrayList<Pair> xorSpoiler = Utility.getHistoryXOR(unfolding, spoiler, null);// xorMap.get(spoiler);
-
-			/* Se le transizioni del cutoff non sono in conflitto con lo spoiler le aggiungo alla nuova lista */
-			for(Transition t: cutoff)
-				if(t != spoiler && !Utility.isConflict(Utility.getHistoryXOR(unfolding, t, null)/*xorMap.get(t)*/, xorSpoiler))
-					cutoff1.add(t);
-			return cutoff1;
-		}
-	}
-
-
-
-
 }
