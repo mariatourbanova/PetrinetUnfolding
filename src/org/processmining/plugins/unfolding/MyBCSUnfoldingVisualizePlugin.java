@@ -28,6 +28,7 @@ import org.processmining.plugins.unfolding.visualize.StringPanel;
 import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.LegendBCSUnfolding;
+import org.processmining.support.unfolding.LegendPetrinet;
 import org.processmining.support.unfolding.StatisticMap;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstants;
@@ -121,7 +122,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 			
 			/*Costruisco il pannello dell'Unfolding*/
 			ProMJGraphPanel unfoldingPanel = ProMJGraphVisualizer.instance().visualizeGraph(context, unfolding);
-			LegendBCSUnfolding legendPanelP = new LegendBCSUnfolding(unfoldingPanel, "Legend");
+			LegendPetrinet legendPanelP = new LegendPetrinet (unfoldingPanel, "Legend");
 			unfoldingPanel.addViewInteractionPanel(legendPanelP, SwingConstants.EAST);
 			panel.add(unfoldingPanel, "0,1");
 			
@@ -239,7 +240,6 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 			}
 			else System.out.println("vuoto");			
 		}
-
 		return bpmncopia;
 	
 }

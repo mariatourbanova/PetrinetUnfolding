@@ -207,8 +207,6 @@ public class BPMN2WorkflowSystemConverter
 	private void translateEndEvent(Event e) {
 		Place p = net.addPlace("p_end_"+e.getLabel());
 		Transition t = net.addTransition("t_end_"+e.getLabel());
-		
-		
 		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
 		
 		reverseMap.put(new PetrinetNodeMod(t), e);

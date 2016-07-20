@@ -28,8 +28,8 @@ public class BPMN2Unfolding_Plugin
 	@UITopiaVariant
 	(
 			affiliation = "University of Pisa", 
-			author = "Daniele Cicciarella", 
-			email = "cicciarellad@gmail.com"
+			author = "Daniele Cicciarella, Francesco Boscia", 
+			email = "cicciarellad@gmail.com, francesco.boscia@gmail.com"
 			)
 	public Object[] convert(PluginContext context, BPMNDiagram bpmn) 
 	{

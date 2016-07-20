@@ -17,7 +17,8 @@ public class PetrinetNodeMod extends PetrinetNode  {
 	
 	public PetrinetNodeMod(PetrinetNode pn){
 		super(pn.getGraph(), pn.getParent(), pn.getLabel());
-		this.original_id = pn.getAttributeMap().get("Original id").toString();		
+		if(pn != null){
+		this.original_id = pn.getAttributeMap().get("Original id").toString();}
 	}
 	
 	public int hashCode() {

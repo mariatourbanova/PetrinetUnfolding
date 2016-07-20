@@ -473,16 +473,16 @@ package org.processmining.support.unfolding;
 									element++;
 									String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
 									temp += "<li>" + l + "</li>";
-									temp += "</ol><BR>";}							
+									}							
 							if (element == 0){
 								out += "The graph does not contain cutoff points<BR><BR>";
 							} else {
 								switch(element){
 								case 0:{out += "The graph does not contain cutoff points<BR><BR>"; break;}
 								case 1:{out += "The graph contains " + element + " cutoff point:<ol>"; 
-								out += temp; break;}
+								temp += "</ol><BR>";out += temp; break;}
 								default:{out += "The graph contains " + element + " cutoff points:<ol>";
-								out += temp; break;}	
+								temp += "</ol><BR>";out += temp; break;}	
 								}
 							}	
 						}
@@ -501,13 +501,13 @@ package org.processmining.support.unfolding;
 									element++;
 									String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
 									temp += "<li>" + l + "</li>";
-									temp += "</ol><BR>";}											
+									}											
 							switch(element){
 							case 0:{out += "The graph does not contain the cutoff points that make the unbounded graph<BR><BR>"; break;}
 							case 1:{out += "The graph contains " + element + " cutoff point that make the unbounded graph:<ol>"; 
-							out += temp; break;}
+							temp += "</ol><BR>";out += temp; break;}
 							default:{out += "The graph contains " + element + " cutoff points that make the unbounded graph::<ol>";
-							out += temp; break;}	
+							temp += "</ol><BR>";out += temp; break;}	
 							}
 
 						}
@@ -526,13 +526,13 @@ package org.processmining.support.unfolding;
 										element++;
 										String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
 										temp += "<li>" + l + "</li>";
-										temp += "</ol><BR>";}							
+										}							
 								switch(element){
 									case 0:{out += "The graph does not contain deadlock points<BR><BR>"; break;}
 									case 1:{out += "The graph contains " + element + " deadlock point:<ol>"; 
-									out += temp; break;}
+									temp += "</ol><BR>"; out += temp; break;}
 									default:{out += "The graph contains " + element + " deadlock points:<ol>";
-									out += temp; break;}	
+									temp += "</ol><BR>";out += temp; break;}	
 									}
 								
 						}
@@ -553,17 +553,16 @@ package org.processmining.support.unfolding;
 									if(bnode!=null){
 										String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
 										temp += "<li>" + l + "</li>";
-										temp += "</ol><BR>";
 										}else{
 										System.out.print("");
 									}
-									temp += "</ol><BR>";}							
+									}							
 							switch(element){
 							case 0:{out += "The graph does not contain dead nodes<BR><BR>"; break;}
 							case 1:{out += "The graph contains " + element + " dead node:<ol>"; 
-							out += temp; break;}
+							temp += "</ol><BR>"; out += temp; break;}
 							default:{out += "The graph contains " + element + " dead nodes:<ol>";
-							out += temp; break;}	
+							temp += "</ol><BR>"; out += temp; break;}	
 							}
 
 						}

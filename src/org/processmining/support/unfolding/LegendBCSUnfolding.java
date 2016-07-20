@@ -5,7 +5,6 @@ import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -96,7 +95,7 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         JPanel redPanel = new JPanel();
         redPanel.setBackground(pal.getDeadColor());
         legendPanel.add(redPanel, "0," + row + ",r, c");
-        JLabel lb2 = factory.createLabel(" Points of Deadlock");
+        JLabel lb2 = factory.createLabel(" Points or arcs of Deadlock");
         lb2.setForeground(Color.WHITE);
         legendPanel.add(lb2, "1," + row++ + ",l, c");
         

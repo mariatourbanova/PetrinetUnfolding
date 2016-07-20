@@ -179,7 +179,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 								BPMNEdge<BPMNNode, BPMNNode> arcoBPMN = statistiunf.getFlowMapBPtoPN().get(u);
 								/*prendo l'arco BPMN della rete clonata*/
 								arcoDead = visualizeUnfoldingStatistics_Plugin.getArcInClone(bpmncopia, arcoBPMN);
-								arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, Color.GREEN);							
+								arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());							
 							}
 						}
 
