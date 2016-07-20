@@ -19,7 +19,7 @@ for (File file : listOfFiles) {
 
 			// Converto il modello in Petrinet ed eseguo lunfolding
 			bpmn_diagram = select_bpmn_diagram(bpmn);
-			result = bcs_bpmn_to_unfolding_net(bpmn_diagram);
+			result = bcs_bpmn_to_unfolding_net(bpmn_diagram,4);
 			
 			print("+++++++++++++++++++++++++");
 			print(file.getName());

@@ -11,6 +11,9 @@ public class Palette{
 	private Color LocalConfigurationColor;
 	private Color arcLabelColor; 
 	private Color arcDead;
+	private Color arcDeadLabel;
+	
+
 
 	public Palette(){
 		cutColor = new Color(0,255,255); //Cyan
@@ -19,6 +22,7 @@ public class Palette{
 		LocalConfigurationColor = Color.GREEN;
 		arcLabelColor = Color.RED; 
 		arcDead = Color.RED;
+		arcDeadLabel = Color.BLACK;
 	}
 	
 	public Color getCutColor(){
@@ -43,6 +47,10 @@ public class Palette{
 
 	public Color getArcDead() {
 		return arcDead;
+	}
+
+	public Color getArcDeadLabel() {
+		return arcDeadLabel;
 	}
 
 }

@@ -221,7 +221,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		
 		if(arcoDead != null){
 			arcoDead.getAttributeMap().put(AttributeMap.LABEL, arcDead.toString());
-			arcoDead.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
+			arcoDead.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcDeadLabel());
 			arcoDead.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);}
 		return bpmncopia;	
 	}
