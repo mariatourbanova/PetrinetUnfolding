@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.processmining.framework.plugin.PluginContext;
@@ -834,7 +835,11 @@ public class BPMN2WorkflowSystemConverter
 	}
 
 	public void printReverseMap(){
-		reverseMap.forEach((k,v) -> System.out.println("key: "+k+" value:"+v));
+		Set<Entry<PetrinetNodeMod, BPMNNode>> setEntry = reverseMap.entrySet();
+		for( Entry<PetrinetNodeMod, BPMNNode> entry : setEntry ){
+			System.out.println("key: "+entry.getKey()+" value:"+entry.getValue());
+		}
+		
 	}
 	
 	

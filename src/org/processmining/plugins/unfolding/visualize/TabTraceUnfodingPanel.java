@@ -173,7 +173,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 					for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>   edge :edges ){
 						/*Prendo il PetrinetNode bersaglio dell'arco*/
 						PetrinetNode target = edge.getTarget();
-						/*controllo se è nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente*/ 
+						/*controllo se e' nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente*/ 
 						for (PetrinetNodeMod u :statistiunf.getFlowMapBPtoPN().keySet()){
 							if (u.getLabel()==target.getLabel()){
 								BPMNEdge<BPMNNode, BPMNNode> arcoBPMN = statistiunf.getFlowMapBPtoPN().get(u);
