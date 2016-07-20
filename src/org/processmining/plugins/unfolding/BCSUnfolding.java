@@ -30,7 +30,7 @@ import org.processmining.support.unfolding.Utility;
  */
 public class BCSUnfolding
 {	
-	Boolean concurrentVersion = true;
+	Boolean concurrentVersion = false;
 	/* Contesto di ProM */
 	protected PluginContext context;
 
@@ -81,7 +81,9 @@ public class BCSUnfolding
 		PetriNetClone pnc = new PetriNetClone(petrinet.getLabel());
 		pnc.cloneFrom(petrinet, true, true, true, false, false);
 		this.petrinet = pnc;
-		
+		if(Poolsize>1){
+			concurrentVersion = true;
+		}
 		this.unfolding = PetrinetFactory.newPetrinet("Unfolding from Petrinet");		
 	}
 
@@ -115,22 +117,27 @@ public class BCSUnfolding
 					executor.execute(tv);
 				}
 			}	else System.out.println("ConcurrentQueue vuota");
+			
+			
+			executor.shutdown();
+			while(!executor.isTerminated()){
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
 		}
 		else 
 		{
 		System.out.println("visitQueue");
 		visitQueue();	
 		writeLog(context, "Extraction of the dealock points...");
-		getStatistics();
+		
 		}
-		executor.shutdown();
-		while(!executor.isTerminated()){
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		
 		/* Estraggo i deadlock ed effettuo le statistiche della rete */
 
 		getStatistics();
