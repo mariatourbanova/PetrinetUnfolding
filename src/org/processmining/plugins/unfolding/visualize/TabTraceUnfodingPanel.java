@@ -213,12 +213,14 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			}
 		}
 		Integer max = archi.size();
+		Integer arcDead = archi.size() +1;
 		for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> a : archi){
 			a.getAttributeMap().put(AttributeMap.LABEL, max.toString());
 			max--;	
 		}
 		
 		if(arcoDead != null){
+			arcoDead.getAttributeMap().put(AttributeMap.LABEL, arcDead.toString());
 			arcoDead.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
 			arcoDead.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);}
 		return bpmncopia;	

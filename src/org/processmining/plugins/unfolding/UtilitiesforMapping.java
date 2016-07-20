@@ -18,7 +18,7 @@ public class UtilitiesforMapping {
 			PetrinetNodeMod pnm = new PetrinetNodeMod(pn);
 			if(reverseMap.containsKey(pnm)){
 					nod = reverseMap.get(pnm);	
-			} else 		System.out.println("non trovo pn"); 
+			} 
 			return nod;
 		}
 

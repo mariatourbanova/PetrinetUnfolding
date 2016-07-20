@@ -80,22 +80,22 @@ public class MyBCSUnfoldingVisualizePlugin {
 			try{
 				bpmn = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.BPMN);
 				local =unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.LocalConfiguration);
-				
+
 			}catch (Exception e) {
 				bpmn = null;
-				
+
 			}
-			
+
 			BPMNDiagram bpmncopia= insertDefect(bpmn,output);
-		repaint( true,bpmncopia);
-		 } 
+			repaint( true,bpmncopia);
+		} 
 		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
 		return panel;
 	}
-	
+
 	public void repaint( boolean flag, BPMNDiagram bpmncopia) {
 		try{
 			double size [] [] = {{TableLayoutConstants.FILL} , {TableLayoutConstants.FILL,TableLayoutConstants.FILL}};
@@ -103,7 +103,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 
 			/*Costruisco le statistiche del BPMN graph*/
 			statBPMN.setStatistic(bpmn);
-			
+
 			/*Costruisco il pannello del BPMN e il ViewInteraction Panel della legenda*/
 			ProMJGraphPanel bpmnPanel = ProMJGraphVisualizer.instance().visualizeGraph(context,bpmncopia);
 			LegendBCSUnfolding legendPanelB = new LegendBCSUnfolding(bpmnPanel, "Legend");
@@ -114,18 +114,18 @@ public class MyBCSUnfoldingVisualizePlugin {
 			bpmnPanel.addViewInteractionPanel(sp1, SwingConstants.SOUTH);
 			panel.revalidate();
 			panel.repaint();
-			
+
 			/*costruzione del widget inspector*/
 			if(flag){
 				TabTraceUnfodingPanel tabunf = new TabTraceUnfodingPanel(context, bpmnPanel, "History Unfolding",  output, this, bpmn, local);
 			}
-			
+
 			/*Costruisco il pannello dell'Unfolding*/
 			ProMJGraphPanel unfoldingPanel = ProMJGraphVisualizer.instance().visualizeGraph(context, unfolding);
 			LegendPetrinet legendPanelP = new LegendPetrinet (unfoldingPanel, "Legend");
 			unfoldingPanel.addViewInteractionPanel(legendPanelP, SwingConstants.EAST);
 			panel.add(unfoldingPanel, "0,1");
-			
+
 			/*Costruisco il ViewInteraction pannello delle statistiche*/
 			StringPanel sp = new StringPanel(unfoldingPanel, "Statistic Unfolding", output.getStatistic());
 			unfoldingPanel.addViewInteractionPanel(sp, SwingConstants.SOUTH);
@@ -137,10 +137,10 @@ public class MyBCSUnfoldingVisualizePlugin {
 		}
 
 	}
-	
+
 	public BPMNDiagram getBpmncopia() {
-		
-		
+
+
 		return insertDefect(bpmn,output);
 	}
 
@@ -148,34 +148,34 @@ public class MyBCSUnfoldingVisualizePlugin {
 	public BPMNDiagram getOriginalBpmn(){
 		return bpmn;
 	}
-	
+
 	public Petrinet getPetriNet(){
 		return petrinet;
 	}
-	
+
 	public BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
 		Set<BPMNNode> elenco = bpmn.getNodes();
 		if(node!=null)
-		for(BPMNNode nodeclone: elenco){
-			Object idoc = nodeclone.getAttributeMap().get("Original id");
-			Object inode = node.getAttributeMap().get("Original id");
-			if( idoc.toString().equals(inode.toString())){
-				return nodeclone;
+			for(BPMNNode nodeclone: elenco){
+				Object idoc = nodeclone.getAttributeMap().get("Original id");
+				Object inode = node.getAttributeMap().get("Original id");
+				if( idoc.toString().equals(inode.toString())){
+					return nodeclone;
+				}
 			}
-		}
 		return null;
 	}
-	
+
 	public BPMNEdge<BPMNNode, BPMNNode> getArcInClone(BPMNDiagram bpmn,BPMNEdge<BPMNNode, BPMNNode> arc){
 		Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> elencoArchi = bpmn.getEdges();
 		if(arc!=null)
-		for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> arcClone: elencoArchi){
-			Object idoc = arcClone.getAttributeMap().get("Original id");
-			Object inode = arc.getAttributeMap().get("Original id");
-			if( idoc.toString().equals(inode.toString())){
-				return (BPMNEdge<BPMNNode, BPMNNode>) arcClone;
+			for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> arcClone: elencoArchi){
+				Object idoc = arcClone.getAttributeMap().get("Original id");
+				Object inode = arc.getAttributeMap().get("Original id");
+				if( idoc.toString().equals(inode.toString())){
+					return (BPMNEdge<BPMNNode, BPMNNode>) arcClone;
+				}
 			}
-		}
 		return null;
 	}
 	/*
@@ -185,7 +185,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 		for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> flowclone: elenco){
 			//prendere original Id dall'edge
 			Object idoc = flowclone.getAttributeMap().get("Original id");
-			
+
 			//Object inode = f.getAttributeMap().get("Original id");
 			System.out.println("idoc = " + idoc.toString() + " f = " + f.toString()  );
 			//confrontare Origianl Id
@@ -196,28 +196,29 @@ public class MyBCSUnfoldingVisualizePlugin {
 		}
 		return null;
 	}
-*/
-	
-private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
+	 */
+
+	private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		//Clono il BPMN diagram
-	
+
 		bpmncopia = new CloneBPMN(bpmnoriginal.getLabel());
 		bpmncopia.cloneFrom(bpmnoriginal);
-		
-		 
+
+
 		for( Transition t: map.getCutoff()){
 			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){		
-				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());}
-			else System.out.println("vuoto");
-			
+				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());
+			}
+
 		}
 
 		for( Transition t: map.getCutoffUnbounded()){
 			BPMNNode bpnode = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
 			if (bpnode != null){
-			getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());}
-			else System.out.println("vuoto");
+				getNodeinClone(bpmncopia,bpnode).getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getCutColor());
+			}
+
 		}
 
 		for( Transition t: map.getDeadlock()){
@@ -232,15 +233,15 @@ private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 					else{					
 						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
 					}}
-					else{
-						bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
-					}
-				
-				System.out.println("vuoto");
+				else{
+					bpnod.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadColor());
+				}
+
+
 			}
-			else System.out.println("vuoto");			
+
 		}
 		return bpmncopia;
-	
-}
+
+	}
 }

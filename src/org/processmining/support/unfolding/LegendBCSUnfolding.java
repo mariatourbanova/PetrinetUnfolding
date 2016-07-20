@@ -116,7 +116,7 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         
         arcNumberLabel.setSize(n);
         legendPanel.add(arcNumberLabel, "0," + row + ",r, c");
-        JLabel arcLabel = factory.createLabel(" Ordine esecuzione attività (inverso)");
+        JLabel arcLabel = factory.createLabel("Order activities");
         arcLabel.setForeground(Color.WHITE);
         legendPanel.add(arcLabel, "1," + row++ + ",l, c");
 

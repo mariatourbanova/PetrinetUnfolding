@@ -74,9 +74,10 @@ public class BCSUnfolding
 	 * @param context contesto di ProM
 	 * @param petrinet rete di petri originale
 	 */
-	BCSUnfolding(PluginContext context, Petrinet petrinet) 
+	BCSUnfolding(PluginContext context, Petrinet petrinet, int Poolsize) 
 	{
 		this.context = context;
+		this.poolSize=Poolsize;
 		PetriNetClone pnc = new PetriNetClone(petrinet.getLabel());
 		pnc.cloneFrom(petrinet, true, true, true, false, false);
 		this.petrinet = pnc;

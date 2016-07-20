@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import org.processmining.framework.util.ui.scalableview.ScalableComponent;
 import org.processmining.framework.util.ui.scalableview.ScalableViewPanel;
 import org.processmining.framework.util.ui.scalableview.interaction.ViewInteractionPanel;
+import org.processmining.plugins.unfolding.Palette;
 
 import com.fluxicon.slickerbox.factory.SlickerDecorator;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
@@ -36,6 +37,8 @@ public class LegendPetrinet extends JPanel implements MouseListener, MouseMotion
     protected SlickerDecorator decorator = SlickerDecorator.instance();
     private JComponent component;
     private String panelName;
+    private Palette pal = new Palette();
+
 
     /**
      * Costruttore 
@@ -83,7 +86,7 @@ public class LegendPetrinet extends JPanel implements MouseListener, MouseMotion
         layout.insertRow(row, 0.2);
         layout.insertRow(row, TableLayout.PREFERRED);
         JPanel greenPanel = new JPanel();
-        greenPanel.setBackground(Color.RED);
+        greenPanel.setBackground(pal.getCutColor());
         legendPanel.add(greenPanel, "0," + row + ",r, c");
         JLabel syncLbl = factory.createLabel(" Places unbounded");
         syncLbl.setForeground(Color.WHITE);
@@ -92,7 +95,7 @@ public class LegendPetrinet extends JPanel implements MouseListener, MouseMotion
         /* Riga transizioni dead */
         layout.insertRow(row, TableLayout.PREFERRED);
         JPanel yellowPanel = new JPanel();
-        yellowPanel.setBackground(Color.RED);
+        yellowPanel.setBackground(pal.getDeadColor());
         legendPanel.add(yellowPanel, "0," + row + ",r, c");
         JLabel moveLogLbl = factory.createLabel(" Dead transitions");
         moveLogLbl.setForeground(Color.WHITE);

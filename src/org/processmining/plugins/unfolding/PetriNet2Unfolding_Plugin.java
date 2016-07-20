@@ -1,8 +1,10 @@
 package org.processmining.plugins.unfolding;
 
+import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
+import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.support.unfolding.StatisticMap;
 
@@ -11,24 +13,49 @@ import org.processmining.support.unfolding.StatisticMap;
  * 
  * @author Daniele Cicciarella
  */
+@Plugin
+(
+	name = "BCS Petri net to Unfolding net", 
+	parameterLabels = {"Petri net","Num Thread"}, 
+	returnLabels = {"Visualize BCS Unfolding Statistics", "Petri net"}, 
+	returnTypes = { StatisticMap.class, Petrinet.class }, 
+	userAccessible = true, 
+	help = "Convert Petri net to Unfolding net"
+)
 public class PetriNet2Unfolding_Plugin 
 {
-	@Plugin
-	(
-		name = "BCS Petri net to Unfolding net", 
-		parameterLabels = {"Petri net"}, 
-		returnLabels = {"Visualize BCS Unfolding Statistics", "Petri net"}, 
-		returnTypes = { StatisticMap.class, Petrinet.class }, 
-		userAccessible = true, 
-		help = "Convert Petri net to Unfolding net"
-	)
+	
 	@UITopiaVariant
 	(
-		affiliation = "University of Pisa", 
-		author = "Daniele Cicciarella, Francesco Boscia", 
-		email = "cicciarellad@gmail.com"
-	)
-	public Object[] convert(PluginContext context, Petrinet petrinet) 
+			affiliation = "University of Pisa", 
+			author = "Daniele Cicciarella, Francesco Boscia", 
+			email = "cicciarellad@gmail.com, francesco.boscia@gmail.com"
+			)
+	@PluginVariant(variantLabel = "BCS Petri net to Unfolding net UI, parameters", requiredParameterLabels = { 0 })
+	
+	public Object[] convert(UIPluginContext context, Petrinet petrinet) 
+	{
+		
+		return convert(context, petrinet,4);
+	}
+	
+	
+	@UITopiaVariant
+	(
+			affiliation = "University of Pisa", 
+			author = "Daniele Cicciarella, Francesco Boscia", 
+			email = "cicciarellad@gmail.com, francesco.boscia@gmail.com"
+			)
+	@PluginVariant(variantLabel = "BCS Petri net to Unfolding net CLI,parameters, parameters", requiredParameterLabels = { 0,1 })
+	
+	public Object[] convert2(PluginContext context, Petrinet petrinet, int numThread) 
+	{
+		
+		return convert(context, petrinet, numThread);
+	}
+	
+	
+	private Object[] convert(PluginContext context, Petrinet petrinet,int poolSize) 
 	{
 		BCSUnfolding petrinet2Unfolding;
 		Object[] unfolding;
@@ -38,7 +65,7 @@ public class PetriNet2Unfolding_Plugin
 		
 		/* Converte la rete di Petri nella rete di unfolding */
 		writeLog(context, "Conversion of the Petri net in Unfolding net...");
-		petrinet2Unfolding = new BCSUnfolding(context, petrinet);
+		petrinet2Unfolding = new BCSUnfolding(context, petrinet,poolSize);
 		unfolding = petrinet2Unfolding.convert();
 		
 		/* Aggiungo connessione per la visualizzazione delle reti e statistiche delle rete unfoldata */
