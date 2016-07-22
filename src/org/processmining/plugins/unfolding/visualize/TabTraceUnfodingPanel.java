@@ -160,6 +160,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		for (Transition pn: localConfiguration.get()){
 			if (previousNode == null){
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
+				if (node== null){continue;}
 				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
 				if (clonato != null){
 					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());

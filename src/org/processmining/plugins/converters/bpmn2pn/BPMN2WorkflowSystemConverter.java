@@ -256,9 +256,9 @@ public class BPMN2WorkflowSystemConverter
 
 		String attachedActivity = (e.getBoundingNode() != null ? "_"+e.getBoundingNode().getLabel() : "");
 		Transition t = net.addTransition("t_ev_"+e.getEventTrigger().name()+"_"+e.getLabel()+attachedActivity);
-		
+		reverseMap.put(new PetrinetNodeMod(t), e);
 		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
-
+		
 		// Connect transition to place of outgoing edge
 		for (BPMNEdge<?, ?> f : bpmn.getOutEdges(e)) 
 		{
@@ -352,6 +352,8 @@ public class BPMN2WorkflowSystemConverter
 			{
 				Transition t_repeat = net.addTransition("t_act_"+a.getLabel()+"_repeat");
 				t_repeat.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+				reverseMap.put(new PetrinetNodeMod(t_repeat), a);
+
 				// Loop back
 				net.addArc(p_finished, t_repeat);
 				net.addArc(t_repeat, p_ready);
@@ -733,8 +735,6 @@ public class BPMN2WorkflowSystemConverter
 				for(int i = 0; i < startEventMap.get(nodeID).size(); i++)
 				{
 					Transition t = net.addTransition("ti_pool_" + pool + "_" + i);
-					//t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
-
 					net.addArc(t, startEventMap.get(nodeID).get(i));
 					net.addArc(p, t);
 				}
@@ -750,6 +750,7 @@ public class BPMN2WorkflowSystemConverter
 				for(int i = 0; i < endEventMap.get(nodeID).size(); i++)
 				{
 					Transition t = net.addTransition("to_pool_" + pool + "_" + i);
+					
 					net.addArc(endEventMap.get(nodeID).get(i), t);
 					net.addArc(t, p);
 				}

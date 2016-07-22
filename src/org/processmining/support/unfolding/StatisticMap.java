@@ -471,7 +471,12 @@ package org.processmining.support.unfolding;
 							for(Transition t: get(key))
 								if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
 									element++;
-									String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
+									BPMNNode fromReverseMap = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+									String l= "";
+									if (fromReverseMap !=null){
+										l = fromReverseMap.getLabel();} 
+									else
+										{l = "missing";}
 									temp += "<li>" + l + "</li>";
 									}							
 							if (element == 0){

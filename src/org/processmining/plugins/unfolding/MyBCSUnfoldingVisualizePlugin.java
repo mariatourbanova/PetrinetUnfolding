@@ -13,17 +13,13 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.contexts.uitopia.annotations.Visualizer;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.models.graphbased.AttributeMap;
-import org.processmining.models.graphbased.EdgeID;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
-import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
-import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
-import org.processmining.plugins.bpmn.BpmnEventBasedGateway;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
 import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
@@ -178,25 +174,6 @@ public class MyBCSUnfoldingVisualizePlugin {
 			}
 		return null;
 	}
-	/*
-	public BPMNEdge<? extends BPMNNode, ? extends BPMNNode> getEdgeinClone(BPMNDiagram bpmn,BPMNEdge<BPMNNode, BPMNNode> f){
-		 Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> elenco = bpmn.getEdges();
-		if(f!=null)
-		for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> flowclone: elenco){
-			//prendere original Id dall'edge
-			Object idoc = flowclone.getAttributeMap().get("Original id");
-
-			//Object inode = f.getAttributeMap().get("Original id");
-			System.out.println("idoc = " + idoc.toString() + " f = " + f.toString()  );
-			//confrontare Origianl Id
-			if( idoc.toString().equals(f.toString())){
-				//ritornare edge clonato
-				return flowclone;
-			}
-		}
-		return null;
-	}
-	 */
 
 	private BPMNDiagram insertDefect(BPMNDiagram bpmnoriginal, StatisticMap map) {
 		//Clono il BPMN diagram
