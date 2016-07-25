@@ -22,6 +22,8 @@ import org.processmining.models.graphbased.directed.bpmn.elements.Swimlane;
 
 public class CloneBPMN extends  BPMNDiagramImpl {
 
+	HashMap<DirectedGraphElement, DirectedGraphElement> mapping = new HashMap<DirectedGraphElement, DirectedGraphElement>();
+
 	public CloneBPMN(String label) {
 		super(label);
 	}
@@ -30,8 +32,7 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 	public Map<DirectedGraphElement, DirectedGraphElement> cloneFrom(
 			DirectedGraph<BPMNNode, BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> graph) {
 		BPMNDiagram bpmndiagram = (BPMNDiagram) graph;
-		HashMap<DirectedGraphElement, DirectedGraphElement> mapping = new HashMap<DirectedGraphElement, DirectedGraphElement>();
-
+		
 		boolean newSwimlanes = true;
 		while (newSwimlanes) {
 			newSwimlanes = false;
@@ -48,8 +49,7 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 					} else if (mapping.containsKey(parentSwimlane)) {
 						ss = addSwimlane(s.getLabel(), (Swimlane) mapping.get(parentSwimlane), 
 								s.getSwimlaneType());
-						mapping.put(s,
-								ss);
+						mapping.put(s,ss);
 					}
 					ss.getAttributeMap().put("Original id", s.getAttributeMap().get("Original id"));
 				}
@@ -213,6 +213,10 @@ public class CloneBPMN extends  BPMNDiagramImpl {
 		for (String key : map.keySet()) {
 			getAttributeMap().put(key, map.get(key));
 		}
+		return mapping;
+	}
+
+	public HashMap<DirectedGraphElement, DirectedGraphElement> getMapping() {
 		return mapping;
 	}
 

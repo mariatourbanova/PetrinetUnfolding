@@ -170,18 +170,18 @@ public class BCSUnfolding
 			Transition t1 = unfolding.addTransition(t.getLabel());
 			t1.getAttributeMap().put("Original id", id);
 			Arc arc = unfolding.addArc(p1, t1);
-			arc.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
+			//arc.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
 			/* Per tutti i place u delle rete di petri attaccate a t */
 			for(DirectedGraphEdge<?, ?> a2: petrinet.getGraph().getOutEdges(t))
 			{
 				// Creo un place u1 nell'unfolding e attacco t1 con u1
 				Place u = (Place) a2.getTarget();
-				u.getAttributeMap().put("Original id", t.getAttributeMap().get("Original id"));
+				//u.getAttributeMap().put("Original id", t.getAttributeMap().get("Original id"));
 				Place u1 = unfolding.addPlace(u.getLabel());
-				u1.getAttributeMap().put("Original id", t.getAttributeMap().get("Original id"));
+				u1.getAttributeMap().put("Original id", u.getAttributeMap().get("Original id"));
 				
 				arc = unfolding.addArc(t1, u1);				
-				arc.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
+				//arc.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
 
 				refreshCorrispondence((PetrinetNode) u, u1);
 				}
