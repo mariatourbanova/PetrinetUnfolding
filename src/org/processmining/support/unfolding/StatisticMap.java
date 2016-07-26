@@ -3,7 +3,8 @@ package org.processmining.support.unfolding;
 
 	import java.util.ArrayList;
 	import java.util.HashMap;
-	import java.util.Map;
+import java.util.List;
+import java.util.Map;
 	import org.processmining.plugins.unfolding.Palette;
 	import org.processmining.models.graphbased.AttributeMap;
 	import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;

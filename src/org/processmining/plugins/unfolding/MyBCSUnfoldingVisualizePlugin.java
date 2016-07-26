@@ -1,6 +1,8 @@
 package org.processmining.plugins.unfolding;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +19,8 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
+import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
+import org.processmining.models.graphbased.directed.petrinet.elements.Arc;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
@@ -43,6 +47,8 @@ public class MyBCSUnfoldingVisualizePlugin {
 	private JPanel panel;
 	private Map<PetrinetNodeMod,BPMNNode> reverseMap;
 	private Palette pal = new Palette();
+	private ArrayList<PetrinetNode> path = new ArrayList<PetrinetNode>();
+	
 	@Plugin
 	(
 			name = "Updated Visualization BCS Unfolding Statistics", 
@@ -221,4 +227,28 @@ public class MyBCSUnfoldingVisualizePlugin {
 		return bpmncopia;
 
 	}
+	
+	
+	public void createPath(PetrinetNode pn, Petrinet petrinet, ArrayList<PetrinetNode> path){
+
+		//path.add(pn);
+	//	PetrinetNode i = in.getSource();		
+		
+//		if (pn.getGraph().getInEdges(pn).size() > 1){
+		 for (Iterator<?> preset = petrinet.getGraph().getInEdges(pn).iterator(); preset.hasNext();) 
+			{
+			 	path.add(pn);
+			 	Arc a = (Arc) preset.next();
+				createPath(a.getSource(), petrinet, path);				
+			}
+
+		}
+
+	public Petrinet getUnfolding() {
+		return unfolding;
+	}
+	
+
+	
+
 }
