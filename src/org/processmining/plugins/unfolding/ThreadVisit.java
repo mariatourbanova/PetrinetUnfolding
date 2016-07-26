@@ -57,9 +57,9 @@ public class ThreadVisit implements Runnable {
 					{
 
 						Place p = (Place) a1.getTarget();
-						p.getAttributeMap().put("Original id", a1.getAttributeMap().get("Original id"));
+						//p.getAttributeMap().put("Original id", a1.getAttributeMap().get("Original id"));
 						Place pi = getPrecedent(t1, p);
-						pi.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
+						//pi.getAttributeMap().put("Original id", t1.getAttributeMap().get("Original id"));
 						/* Per ogni transizione t2 delle rete originale attaccate a p */
 						for(DirectedGraphEdge<?, ?> a2: petrinet.getGraph().getOutEdges(p))
 						{
@@ -143,9 +143,11 @@ public class ThreadVisit implements Runnable {
 									if(!isCutoff)
 									{
 										for(PetrinetNode p2: postset)
-										{	Place p3 = unfolding.addPlace(p2.getLabel());
-										unfolding.addArc(t3, p3);									
-										refreshCorrispondence(p2, p3);
+										{	
+											Place p3 = unfolding.addPlace(p2.getLabel());
+											p3.getAttributeMap().put("Original id",p2.getAttributeMap().get("Original id"));
+											unfolding.addArc(t3, p3);									
+											refreshCorrispondence(p2, p3);
 										}
 										concurrentQueue.add(localConfigurationMap.get(t3));
 									}

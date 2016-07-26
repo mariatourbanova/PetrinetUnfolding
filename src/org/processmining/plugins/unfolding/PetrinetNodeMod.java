@@ -18,13 +18,28 @@ public class PetrinetNodeMod extends PetrinetNode  {
 	public PetrinetNodeMod(PetrinetNode pn){
 		super(pn.getGraph(), pn.getParent(), pn.getLabel());
 		if(pn != null){
-			if(pn.getAttributeMap().get("Original id")!=null)
-				this.getAttributeMap().put("original_id",pn.getAttributeMap().get("Original id").toString());
+			if(pn.getAttributeMap().get("Original id")!=null){ 
+				original_id = pn.getAttributeMap().get("Original id").toString();
+				this.getAttributeMap().put("original_id",original_id);
+			}
+		}
+	}
+	
+	public PetrinetNodeMod(PetrinetNode pn,String g){
+		super(pn.getGraph(), pn.getParent(), pn.getLabel());
+		if(pn != null){
+			if(pn.getAttributeMap().get("Original id")!=null){ 
+				original_id = g;
+				this.getAttributeMap().put("original_id",original_id);
+			}
 		}
 	}
 
 	public int hashCode() {
-		return getLabel().length();
+		if(getLabel().length()>0)
+			return getLabel().length();
+		else
+			return original_id.length();
 	}
 
 	@Override

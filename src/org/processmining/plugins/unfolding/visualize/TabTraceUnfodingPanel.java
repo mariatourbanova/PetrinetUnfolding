@@ -255,8 +255,9 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
         ArrayList<Place> listplace = Utility.getHistoryPlace(unfolding,localConfiguration.get().get(0));
 
         Place start = Utility.getStartNode(unfolding);
+        
         ArrayList<Transition> listt = localConfiguration.get();
-
+        Transition last = listt.get(0);
         List<PetrinetNode> ll  = new ArrayList<PetrinetNode>();
 
         ll.addAll(listplace);
@@ -266,19 +267,15 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
         WrapInt i = new WrapInt();
 
 
-        List<PetrinetNodeMod> nodesVisitati  = new ArrayList<PetrinetNodeMod>();
+        List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati  = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();
         List<PetrinetNode> nodidiSincronizazione  = new ArrayList<PetrinetNode>();
-
-        path(ll,start,i,diagram,nodesVisitati,nodidiSincronizazione);
+        Color c = mapLocalColor.get(localConfiguration);
+        path(ll,start,i,diagram,nodesVisitati,nodidiSincronizazione,c,last);
         for (int j = 0; j < nodidiSincronizazione.size(); j++) {
-                path(ll,nodidiSincronizazione.get(j),i,diagram,nodesVisitati,nodidiSincronizazione);
+                path(ll,nodidiSincronizazione.get(j),i,diagram,nodesVisitati,nodidiSincronizazione,c,last);
         }
 
-        //Colorazione archi dead
-		Color c = mapLocalColor.get(localConfiguration);
-		if(c.equals(pal.getDeadColor())){
-			colorDeadArc(localConfiguration, i,diagram);
-		}
+        
 	}
 
 	private void colorDeadArc(LocalConfiguration localConfiguration, WrapInt i,BPMNDiagram diagram){
@@ -303,15 +300,15 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 	
 	
-	 private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<PetrinetNodeMod> nodesVisitati, List<PetrinetNode> nodidiSincronizazione) {
+	 private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati, List<PetrinetNode> nodidiSincronizazione, Color colorlocal, Transition last) {
          Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = start.getGraph().getOutEdges(start);
          for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge : edges){
                  PetrinetNode target = edge.getTarget();
                  if(ll.contains(target)){
-                         rec(diagram,target,i,nodesVisitati);
+                         rec(diagram,target,i,nodesVisitati,colorlocal,last);
                          Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> inedges = target.getGraph().getInEdges(target);
                          if(inedges.size()<2)
-                                 path(ll,target,i, diagram,nodesVisitati,nodidiSincronizazione);
+                                 path(ll,target,i, diagram,nodesVisitati,nodidiSincronizazione,colorlocal,last);
                          else
                                  nodidiSincronizazione.add(target);
 
@@ -320,25 +317,30 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
  }
 
- private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<PetrinetNodeMod> nodesVisitati){
+ private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati,  Color colorlocal, Transition last){
          BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,nod);
          BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(diagram, node);
          if (clonato != null){
                  clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
          }
 
-         if(!nodesVisitati.contains(new PetrinetNodeMod(nod))){
+        
                  BPMNEdge<BPMNNode, BPMNNode> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(nod));
-
+         
                  if(noded!=null){
-
+                	 if(!nodesVisitati.contains(noded)){
                                  BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, noded);
                                  to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
                                  to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
                                  to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
                                  num.value++;
                                  to.getAttributeMap().put(AttributeMap.LABEL, num.value.toString());
-                                 nodesVisitati.add(new PetrinetNodeMod(nod));
+                                 nodesVisitati.add(noded);
+                                 //Colorazione archi dead
+                                 if(nod.equals(last))
+                                 if(colorlocal.equals(pal.getDeadColor())){
+                                	 to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());	
+                                 }
 
                          }
 
@@ -347,108 +349,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-
-/*	private void coloraPath(List<PetrinetNode> path, Map<?, BPMNNode> reverseMap, CloneBPMN bpmncopia) {
-		Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> MapPNNodetoArco = statistiunf.getFlowMapBPtoPN();
-		HashMap<DirectedGraphElement, DirectedGraphElement> arcToBPMNclonato = bpmncopia.getMapping();
-		Integer step = 0;
-		for (PetrinetNode element:path){
-
-			BPMNNode node= UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, element);
-			if (node!=null){
-				//recupero il nodo clonato
-				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
-				//colorare
-				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
-				}
-			}
-
-			PetrinetNodeMod key = new PetrinetNodeMod(element);
-			if (MapPNNodetoArco.containsKey(key)){
-				//recupero l'arco BPMN
-				List<BPMNEdge<BPMNNode, BPMNNode>> arcUnfoldings = MapPNNodetoArco.get(key);
-				//Predndo l'arco clonato dalla Mapping
-				
-				for(BPMNEdge<BPMNNode, BPMNNode> arcUnfolding : arcUnfoldings)
-				if (arcToBPMNclonato.containsKey(arcUnfolding)){
-					//coloro l'arco BPMN clonato
-					arcToBPMNclonato.get(arcUnfolding).getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
-					arcToBPMNclonato.get(arcUnfolding).getAttributeMap().put(AttributeMap.LABEL, step.toString());
-					arcToBPMNclonato.get(arcUnfolding).getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
-					arcToBPMNclonato.get(arcUnfolding).getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
-					step++;
-				
-				}
-			}
-		}
-	}
-*/
-	
-	/*
-	private List<PetrinetNode> extractPathFromLocalConfigurtation(LocalConfiguration localConfiguration, Petrinet unfolding) {
-
-		ArrayList<Transition> elementi = localConfiguration.get();
-		List<PetrinetNode> path= new ArrayList<PetrinetNode>();
-		List<PetrinetNode> res = new ArrayList<PetrinetNode>();
-
-		search(elementi.get(0), path, localConfiguration, res);
-
-		for(int i=0;i<res.size();i++){
-			search(res.get(i), path, localConfiguration, res);
-		}
-		/*PetrinetNode resutl = search(elementi.get(0), path, localConfiguration);
-		boolean flag = true;
-		while(flag){
-			resutl = search(resutl, path, localConfiguration);
-			if(resutl==null){
-				flag=false;	
-			}else
-				flag = resutl.getGraph().getInEdges(resutl).size()>0? true: false;
-		}
-		return path;
-	}
-
-
-	private void search(PetrinetNode element, List<PetrinetNode> path, LocalConfiguration localConfiguration, List<PetrinetNode> res ){
-
-		PetrinetNode source = null;
-		if(element!=null )
-			for( PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> arco : element.getGraph().getInEdges(element)){
-				source = arco.getSource();
-				if(!path.contains(source)){
-					path.add(source);				   
-					//if 	(arco.getSource().getGraph().getInEdges(source).size() > 1) { 
-					//source = arco.getSource();
-
-
-					//source = arco.getSource();
-
-					if(source.getGraph().getOutEdges(source).size()<2){
-						search(arco.getSource(), path, localConfiguration,res);
-					}else
-						if(!(source instanceof Transition))
-							search(arco.getSource(), path, localConfiguration,res);
-						else{
-							System.out.println(source);
-							if(!res.contains(source))
-								res.add(source);	
-						}
-				}				
-			}
-		if(!res.contains(source))
-			res.add(source);
-
-	}
-*/
 	private void fillmap(ArrayList<Transition> elements, Color color) {
 		if (!elements.isEmpty()){					
 			for (Transition t : elements) {

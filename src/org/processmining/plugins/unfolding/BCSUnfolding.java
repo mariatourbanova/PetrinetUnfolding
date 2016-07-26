@@ -301,6 +301,7 @@ public class BCSUnfolding
 								for(PetrinetNode p2: postset)
 								{
 									Place p3 = unfolding.addPlace(p2.getLabel());
+									p3.getAttributeMap().put("Original id",p2.getAttributeMap().get("Original id").toString());
 									unfolding.addArc(t3, p3);						
 									refreshCorrispondence(p2, p3);
 								}
