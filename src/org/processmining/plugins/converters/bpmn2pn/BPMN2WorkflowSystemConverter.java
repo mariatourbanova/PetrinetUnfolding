@@ -524,7 +524,6 @@ public class BPMN2WorkflowSystemConverter
 			for( BPMNEdge<? , ?> i: bpmn.getInEdges(g)){
 				BPMNNode source = i.getSource();
 				src = flowMap.get(i);
-				//flowMapBPtoPN.put(new PetrinetNodeMod(src),(BPMNEdge<BPMNNode, BPMNNode>)i);
 			};
 			for (BPMNEdge<?, ?> f : bpmn.getOutEdges(g)) 
 			{
