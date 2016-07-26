@@ -269,12 +269,17 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
         List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati  = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();
         List<PetrinetNode> nodidiSincronizazione  = new ArrayList<PetrinetNode>();
-        Color c = mapLocalColor.get(localConfiguration);
-        path(ll,start,i,diagram,nodesVisitati,nodidiSincronizazione,c,last);
+        
+        path(ll,start,i,diagram,nodesVisitati,nodidiSincronizazione);
         for (int j = 0; j < nodidiSincronizazione.size(); j++) {
-                path(ll,nodidiSincronizazione.get(j),i,diagram,nodesVisitati,nodidiSincronizazione,c,last);
+                path(ll,nodidiSincronizazione.get(j),i,diagram,nodesVisitati,nodidiSincronizazione);
         }
 
+        
+        Color colorlocal = mapLocalColor.get(localConfiguration);
+            if(colorlocal.equals(pal.getDeadColor())){
+            	colorDeadArc(last,i,diagram);
+            }
         
 	}
 
@@ -298,17 +303,33 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		}	
 	}
 
+	private void colorDeadArc(Transition t, WrapInt i,BPMNDiagram diagram){
+		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = t.getGraph().getOutEdges(t);
+		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge :edges ){
+			//Prendo il PetrinetNode bersaglio dell'arco
+			PetrinetNode target = edge.getTarget();
+		 BPMNEdge<BPMNNode, BPMNNode> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(target));
+         
+         if(noded!=null){
+        	 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, noded);
+        	 i.value++;
+			 to.getAttributeMap().put(AttributeMap.LABEL, i.print());
+			 to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
+             //to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
+        	 to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());	
+         }
+		}
+	}
 	
-	
-	 private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati, List<PetrinetNode> nodidiSincronizazione, Color colorlocal, Transition last) {
+	 private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati, List<PetrinetNode> nodidiSincronizazione) {
          Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = start.getGraph().getOutEdges(start);
          for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge : edges){
                  PetrinetNode target = edge.getTarget();
                  if(ll.contains(target)){
-                         rec(diagram,target,i,nodesVisitati,colorlocal,last);
+                         rec(diagram,target,i,nodesVisitati);
                          Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> inedges = target.getGraph().getInEdges(target);
                          if(inedges.size()<2)
-                                 path(ll,target,i, diagram,nodesVisitati,nodidiSincronizazione,colorlocal,last);
+                                 path(ll,target,i, diagram,nodesVisitati,nodidiSincronizazione);
                          else
                                  nodidiSincronizazione.add(target);
 
@@ -317,7 +338,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
  }
 
- private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati,  Color colorlocal, Transition last){
+ private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati){
          BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,nod);
          BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(diagram, node);
          if (clonato != null){
@@ -328,8 +349,9 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
                  BPMNEdge<BPMNNode, BPMNNode> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(nod));
          
                  if(noded!=null){
+                	 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, noded);
                 	 if(!nodesVisitati.contains(noded)){
-                                 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, noded);
+                                 
                                  to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
                                  to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
                                  to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
@@ -337,12 +359,10 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
                                  to.getAttributeMap().put(AttributeMap.LABEL, num.value.toString());
                                  nodesVisitati.add(noded);
                                  //Colorazione archi dead
-                                 if(nod.equals(last))
-                                 if(colorlocal.equals(pal.getDeadColor())){
-                                	 to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());	
-                                 }
+                                 
 
                          }
+                	
 
          }
  }

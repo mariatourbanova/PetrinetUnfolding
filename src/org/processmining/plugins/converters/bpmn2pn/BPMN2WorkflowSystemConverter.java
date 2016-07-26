@@ -524,7 +524,7 @@ public class BPMN2WorkflowSystemConverter
 			for( BPMNEdge<? , ?> i: bpmn.getInEdges(g)){
 				BPMNNode source = i.getSource();
 				src = flowMap.get(i);
-				flowMapBPtoPN.put(new PetrinetNodeMod(src),(BPMNEdge<BPMNNode, BPMNNode>)i);
+				//flowMapBPtoPN.put(new PetrinetNodeMod(src),(BPMNEdge<BPMNNode, BPMNNode>)i);
 			};
 			for (BPMNEdge<?, ?> f : bpmn.getOutEdges(g)) 
 			{
@@ -571,10 +571,10 @@ public class BPMN2WorkflowSystemConverter
 					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
 					flowMapBPtoPN.put(new PetrinetNodeMod(t,f.getAttributeMap().get("Original id").toString()),(BPMNEdge<BPMNNode, BPMNNode>) f);
 					
-					flowMapBPtoPN.put(new PetrinetNodeMod(t),(BPMNEdge<BPMNNode, BPMNNode>) f);
+					//flowMapBPtoPN.put(new PetrinetNodeMod(t),(BPMNEdge<BPMNNode, BPMNNode>) f);
 					
 					
-					
+					reverseMap.put(new PetrinetNodeMod(t), g);
 					net.addArc(t, p);
 					net.addArc(flowMap.get(f), t);
 					nodeMap.get(g).add(t);
@@ -591,6 +591,8 @@ public class BPMN2WorkflowSystemConverter
 					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
 					
 					flowMapBPtoPN.put(new PetrinetNodeMod(t,f.getAttributeMap().get("Original id").toString()),(BPMNEdge<BPMNNode, BPMNNode>) f);
+					
+					//flowMapBPtoPN.put(new PetrinetNodeMod(t),(BPMNEdge<BPMNNode, BPMNNode>) f);
 					
 					reverseMap.put(new PetrinetNodeMod(t), g);
 					net.addArc(p, t);
