@@ -83,19 +83,56 @@ public class MyBCSUnfoldingVisualizePlugin {
 				bpmn = unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.BPMN);
 				local =unfoldingConnection.getObjectWithRole(BCSUnfoldingConnection.LocalConfiguration);
 
+			
+
+				BPMNDiagram bpmncopia= insertDefect(bpmn,output);
+				repaint( true,bpmncopia);
+			
 			}catch (Exception e) {
 				bpmn = null;
-
+				paintwithoutbpmn();
 			}
-
-			BPMNDiagram bpmncopia= insertDefect(bpmn,output);
-			repaint( true,bpmncopia);
 		} 
 		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
 		return panel;
+	}
+
+	private void paintwithoutbpmn() {
+		try{
+			double size [] [] = {{TableLayoutConstants.FILL} , {TableLayoutConstants.FILL,TableLayoutConstants.FILL}};
+			panel.setLayout(new TableLayout(size));
+
+			
+			/*Costruisco il pannello del PN e il ViewInteraction Panel della legenda*/
+			ProMJGraphPanel PNPanel = ProMJGraphVisualizer.instance().visualizeGraph(context,petrinet);
+			
+			
+			panel.add(PNPanel, "0,0");
+
+			
+			panel.revalidate();
+			panel.repaint();
+			
+
+			/*Costruisco il pannello dell'Unfolding*/
+			ProMJGraphPanel unfoldingPanel = ProMJGraphVisualizer.instance().visualizeGraph(context, unfolding);
+			LegendPetrinet legendPanelP = new LegendPetrinet (unfoldingPanel, "Legend");
+			unfoldingPanel.addViewInteractionPanel(legendPanelP, SwingConstants.EAST);
+			panel.add(unfoldingPanel, "0,1");
+
+			/*Costruisco il ViewInteraction pannello delle statistiche*/
+			StringPanel sp = new StringPanel(unfoldingPanel, "Statistic Unfolding", output.getStatistic());
+			unfoldingPanel.addViewInteractionPanel(sp, SwingConstants.SOUTH);
+			panel.revalidate();
+			panel.repaint();
+		}catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		
 	}
 
 	public void repaint( boolean flag, BPMNDiagram bpmncopia) {
