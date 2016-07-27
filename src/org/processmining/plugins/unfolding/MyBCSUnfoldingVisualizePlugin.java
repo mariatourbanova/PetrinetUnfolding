@@ -261,6 +261,17 @@ public class MyBCSUnfoldingVisualizePlugin {
 			}
 
 		}
+		
+	 	for (Transition t: map.getDead()){
+	 		BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,t);
+	 		BPMNNode clonato = getNodeinClone(bpmncopia, node);
+	 		if (clonato!= null){
+	           clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getDeadNodeColor());
+	 		}
+	 	}
+		
+
+		
 		return bpmncopia;
 
 	}

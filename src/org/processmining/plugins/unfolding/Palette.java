@@ -12,6 +12,7 @@ public class Palette{
 	private Color arcLabelColor; 
 	private Color arcDead;
 	private Color arcDeadLabel;
+	private Color deadNodeColor;
 	
 
 
@@ -23,8 +24,10 @@ public class Palette{
 		arcLabelColor = Color.RED; 
 		arcDead = Color.RED;
 		arcDeadLabel = Color.BLACK;
+		deadNodeColor = Color.ORANGE;
 	}
 	
+
 	public Color getCutColor(){
 		return cutColor;
 	}
@@ -51,6 +54,10 @@ public class Palette{
 
 	public Color getArcDeadLabel() {
 		return arcDeadLabel;
+	}
+
+	public Color getDeadNodeColor() {
+		return deadNodeColor;
 	}
 
 }

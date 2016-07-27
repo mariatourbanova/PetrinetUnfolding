@@ -120,6 +120,15 @@ public class LegendBCSUnfolding extends JPanel implements MouseListener, MouseMo
         arcLabel.setForeground(Color.WHITE);
         legendPanel.add(arcLabel, "1," + row++ + ",l, c");
 
+        /*Riga nodi dead*/
+        layout.insertRow(row, TableLayout.PREFERRED);
+        JPanel orangePanel = new JPanel();
+        orangePanel.setBackground(pal.getDeadNodeColor());
+        legendPanel.add(orangePanel, "0," + row + ",r, c");
+        JLabel lb4 = factory.createLabel(" Dead node");
+        lb4.setForeground(Color.WHITE);
+        legendPanel.add(lb4, "1," + row++ + ",l, c");
+        
         /* Riga vuota */
         layout.insertRow(row, 0.2);
         
