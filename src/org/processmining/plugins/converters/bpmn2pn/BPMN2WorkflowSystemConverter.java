@@ -29,6 +29,7 @@ import org.processmining.models.graphbased.directed.bpmn.elements.Swimlane;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
+import org.processmining.models.graphbased.directed.petrinet.elements.Arc;
 import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory;
@@ -194,7 +195,15 @@ public class BPMN2WorkflowSystemConverter
 		
 		/* Save each pool its input */
 		//if(e.getParentPool()!=null)
+		if(e.getGraph().getInEdges(e).isEmpty()){
 		startEventMap.get(e.getParentPool().getId()).add(p);
+		}else{
+			startEventMap.remove(e.getParentPool().getId());
+			net.removeArc(p, t);
+			net.removePlace(p);
+			
+		}
+		
 
 		// Connect transition to place of outgoing edge
 		for (BPMNEdge<?, ?> f : bpmn.getOutEdges(e)) 
@@ -812,7 +821,9 @@ public class BPMN2WorkflowSystemConverter
 			}
 			else if(startEventMap.get(nodeID).size() == 1)
 				input.add(startEventMap.get(nodeID).get(0));
-
+		}
+		for(NodeID nodeID : endEventMap.keySet()) 
+		{
 			/* OUTPUT. Create XOR-join */
 			if(endEventMap.get(nodeID).size() > 1) 
 			{
