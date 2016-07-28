@@ -2,6 +2,7 @@ package org.processmining.plugins.unfolding;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -222,7 +223,7 @@ public class BCSUnfolding
 				for(DirectedGraphEdge<?, ?> a2: petrinet.getGraph().getOutEdges(p))
 				{
 					Transition t2 = (Transition) a2.getTarget();
-					PetrinetNode [] presetT2 = null;
+					List<PetrinetNode> presetT2 = null;
 					ArrayList <Combination> combination = null;
 					int sizeCombination = 1;
 
@@ -232,11 +233,11 @@ public class BCSUnfolding
 
 					/* Prendo il preset di t2 per creare tutte le combinazioni possibili */
 					ArrayList <ArrayList <PetrinetNode>> possibleCombination = new ArrayList <ArrayList <PetrinetNode>>();
-					for(int i = 0; i < presetT2.length; i++)
+					for(int i = 0; i < presetT2.size(); i++)
 					{
-						if(!unf2PetriMap.get(pi).equals(presetT2[i])) 
+						if(!unf2PetriMap.get(pi).equals(presetT2.get(i))) 
 						{
-							ArrayList <PetrinetNode> array = petri2UnfMap.get(presetT2[i]);
+							ArrayList <PetrinetNode> array = petri2UnfMap.get(presetT2.get(i));
 							possibleCombination.add(array);
 							sizeCombination = sizeCombination * array.size();
 						}
@@ -289,11 +290,11 @@ public class BCSUnfolding
 						else
 						{							
 							boolean isCutoff = false;
-							PetrinetNode [] postset = Utility.getPostset(petrinet, t2);
+							List<PetrinetNode> postset = Utility.getPostset(petrinet, t2);
 
 							// Verifico se una piazza finale di t2 è condivisa da altre transizioni e se provoca cutoff
-							for(int i = 0; i < postset.length && !isCutoff; i++)
-								isCutoff = isCutoff(t3, postset[i]);
+							for(int i = 0; i < postset.size() && !isCutoff; i++)
+								isCutoff = isCutoff(t3, postset.get(i));
 
 							// Se t3 è un punto di cutoff la configurazione non deve essere aggiunta nella coda
 							if(!isCutoff)

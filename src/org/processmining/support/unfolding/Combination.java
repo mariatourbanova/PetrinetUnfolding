@@ -2,7 +2,9 @@ package org.processmining.support.unfolding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
@@ -116,7 +118,7 @@ public class Combination
 	 */
 	public static void filter(ArrayList<Combination> combination, Transition t, Map<PetrinetNode, ArrayList<PetrinetNode>> L1, Petrinet N1) 
 	{
-		PetrinetNode [] preset = null;
+		List<PetrinetNode> preset = null;
 		
 		/* Se non è contenuto allora t non è stato mai inserito */
 		if(L1.containsKey(t))
@@ -171,14 +173,15 @@ public class Combination
 	 * @param preset il preset della transizione da aggiungere nell'unfolding
 	 * @return true se la combinazione e' stata usata, false altrimenti
 	 */
-	private boolean isEquals(PetrinetNode[] preset)
+	private boolean isEquals(List<PetrinetNode> preset)
 	{
 		/* Ordino gli array */
-		Arrays.sort(preset);
+		//Arrays.sort(preset);
+		Collections.sort(preset);
 		Arrays.sort(elements);
 		
 		for(int i = 0; i < elements.length; i++)
-			if(!preset[i].equals(elements[i]))
+			if(!preset.contains(elements[i]))
 				return false;
 		return true;
 	}

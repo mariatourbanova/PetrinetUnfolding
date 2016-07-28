@@ -46,7 +46,7 @@ import java.util.Map;
 
 		
 		/* Maps each place to BPMN control-flow edge   */
-		private Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> flowMapBPtoPN;
+		private Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> flowMapBPtoPN;
 		
 		/**
 		 * Costruttore
@@ -592,13 +592,13 @@ import java.util.Map;
 		}
 
 
-		public void setFlowMap(Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> map) {
+		public void setFlowMap(Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> map) {
 			
 			this.flowMapBPtoPN=map;
 		}
 
 
-		public Map<PetrinetNodeMod, BPMNEdge<BPMNNode, BPMNNode>> getFlowMapBPtoPN() {
+		public Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> getFlowMapBPtoPN() {
 			return flowMapBPtoPN;
 		}
 		

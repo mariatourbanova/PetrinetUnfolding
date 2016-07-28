@@ -292,13 +292,16 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		//	controllo se e' nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente 
 			for (PetrinetNodeMod u :statistiunf.getFlowMapBPtoPN().keySet()){
 				if (u.getLabel()==target.getLabel()){
-					BPMNEdge<BPMNNode, BPMNNode> arcoBPMN = statistiunf.getFlowMapBPtoPN().get(u);
+					List<BPMNEdge<BPMNNode, BPMNNode>> archiBPMN = statistiunf.getFlowMapBPtoPN().get(u);
 					i.value++;
 			//		prendo l'arco BPMN della rete clonata
+					
+					for (BPMNEdge<BPMNNode, BPMNNode> arcoBPMN :archiBPMN){
 					AbstractGraphElement arcoDead = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, arcoBPMN);
 					arcoDead.getAttributeMap().put(AttributeMap.LABEL, i.print());
 					arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());							
-				}
+						}	
+			}
 			}
 		}	
 	}
@@ -308,64 +311,64 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge :edges ){
 			//Prendo il PetrinetNode bersaglio dell'arco
 			PetrinetNode target = edge.getTarget();
-		 BPMNEdge<BPMNNode, BPMNNode> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(target));
-         
+		 List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(target));         
          if(noded!=null){
-        	 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, noded);
-        	 i.value++;
+				for (BPMNEdge<BPMNNode, BPMNNode> arcoBPMN :noded){
+
+        	 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, arcoBPMN);
+			
+			i.value++;
 			 to.getAttributeMap().put(AttributeMap.LABEL, i.print());
 			 to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
              //to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
         	 to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());	
-         }
+				}
+				}
 		}
 	}
 	
-	 private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati, List<PetrinetNode> nodidiSincronizazione) {
-         Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = start.getGraph().getOutEdges(start);
-         for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge : edges){
-                 PetrinetNode target = edge.getTarget();
-                 if(ll.contains(target)){
-                         rec(diagram,target,i,nodesVisitati);
-                         Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> inedges = target.getGraph().getInEdges(target);
-                         if(inedges.size()<2)
-                                 path(ll,target,i, diagram,nodesVisitati,nodidiSincronizazione);
-                         else
-                                 nodidiSincronizazione.add(target);
+	private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati, List<PetrinetNode> nodidiSincronizazione) {
+		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = start.getGraph().getOutEdges(start);
+		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge : edges){
+			PetrinetNode target = edge.getTarget();
+			if(ll.contains(target)){
+				rec(diagram,target,i,nodesVisitati);
+				Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> inedges = target.getGraph().getInEdges(target);
+				if(inedges.size()<2)
+					path(ll,target,i, diagram,nodesVisitati,nodidiSincronizazione);
+				else
+					nodidiSincronizazione.add(target);
+			}
+		}
 
-                 }
-         }
+	}
 
- }
+	 private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati){
+		 BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,nod);
+		 BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(diagram, node);
+		 if (clonato != null){
+			 clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
+		 }
 
- private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati){
-         BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,nod);
-         BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(diagram, node);
-         if (clonato != null){
-                 clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
-         }
 
-        
-                 BPMNEdge<BPMNNode, BPMNNode> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(nod));
-         
-                 if(noded!=null){
-                	 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, noded);
-                	 if(!nodesVisitati.contains(noded)){
-                                 
-                                 to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
-                                 to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
-                                 to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
-                                 num.value++;
-                                 to.getAttributeMap().put(AttributeMap.LABEL, num.value.toString());
-                                 nodesVisitati.add(noded);
-                                 //Colorazione archi dead
-                                 
+		 List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(nod));
 
-                         }
-                	
+		 if(noded!=null){
+			 for (  BPMNEdge<BPMNNode, BPMNNode> n :noded){
+				 if(!nodesVisitati.contains(n)){
+					 BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, n);
 
-         }
- }
+					 to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
+					 to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
+					 to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
+					 num.value++;
+					 to.getAttributeMap().put(AttributeMap.LABEL, num.value.toString());
+					 nodesVisitati.add(n);
+
+				 }
+			 }
+		 }
+	 }
 	
 	
 	

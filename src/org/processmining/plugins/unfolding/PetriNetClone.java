@@ -36,6 +36,7 @@ public class PetriNetClone extends PetrinetImpl {
 		if (places) {
 			for (Place p : net.getPlaces()) {
 				Place copy = addPlace(p.getLabel());
+				copy.getAttributeMap().put("Original id", p.getAttributeMap().get("Original id"));
 				mapping.put(p, copy);
 			}
 		}
