@@ -42,7 +42,6 @@ import org.processmining.framework.plugin.GlobalContext;
 import org.processmining.framework.util.ui.scalableview.ScalableComponent;
 import org.processmining.framework.util.ui.scalableview.ScalableViewPanel;
 import org.processmining.framework.util.ui.scalableview.interaction.ViewInteractionPanel;
-import org.processmining.models.graphbased.AbstractGraphElement;
 import org.processmining.models.graphbased.AttributeMap;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramFactory;
@@ -58,6 +57,7 @@ import org.processmining.plugins.unfolding.MyBCSUnfoldingVisualizePlugin;
 import org.processmining.plugins.unfolding.Palette;
 import org.processmining.plugins.unfolding.PetrinetNodeMod;
 import org.processmining.plugins.unfolding.UtilitiesforMapping;
+import org.processmining.plugins.utils.ProvidedObjectHelper;
 import org.processmining.support.localconfiguration.LocalConfiguration;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.StatisticMap;
@@ -68,6 +68,11 @@ import com.fluxicon.slickerbox.factory.SlickerDecorator;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 
 class WrapInt{
+	Integer value = 0;
+
+	String print(){
+		return value.toString();
+	}
 }
 
 public class TabTraceUnfodingPanel extends JPanel implements MouseListener, MouseMotionListener, ViewInteractionPanel {
@@ -95,8 +100,12 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	private ArrayList<LocalConfiguration> list;
 	private String elencoBPMN = "";
 	private Palette pal = new Palette();
+	private UIPluginContext context;
+	private BPMNDiagram pc;
+	//	private ArrayList<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> archi = new ArrayList<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>>();
 
 
+	public TabTraceUnfodingPanel(UIPluginContext context, ScalableViewPanel panel, String panelName,
 			StatisticMap statistiunf, MyBCSUnfoldingVisualizePlugin visualizeUnfoldingStatistics_Plugin, BPMNDiagram bpmn, LocalConfigurationMap local ){
 		super(new BorderLayout());
 		mapLocalColor = new HashMap<LocalConfiguration,Color>();
@@ -110,6 +119,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		this.addMouseListener(this);
 		this.local = local; 
 		this.reverseMap = statistiunf.getReverseMap();
+		this.context = context;
 		panel.getViewport();
 		init();
 		this.panelName = panelName;
@@ -146,9 +156,71 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				);
 
 		inspector.addReset("Reset", button2);
+
+		JButton button3 = new AutoFocusButton("Export");
+		button3.setOpaque(false);
+		button3.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		button3.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				export();
+
+
+
+			}
+		}
+				);
+
+		inspector.addExport("Export", button3);
+
 		return comprisePanel;
 	}
 
+	private void export() {
+
+		String name = pc.getLabel();
+//		BPMNDiagram d = visualizeUnfoldingStatistics_Plugin.getBpmncopia();
+		ProvidedObjectHelper.publish(context, name, pc, BPMNDiagram.class, false);
+
+		//ProvidedObjectHelper.raise(context, d);
+
+
+		final GlobalContext gconetxt = context.getGlobalContext();
+		if(gconetxt instanceof UIContext){
+			UITopiaController controller =((UIContext)gconetxt).getController() ;
+			UIContext uicontext = ((UIContext)gconetxt);
+
+			final ProMResource<?> res = uicontext.getResourceManager().getResourceForInstance(pc);
+
+			if(!controller.getFrameworkHub().getResourceManager()
+					.getExportFilters(res).isEmpty()){
+				try {
+					controller.getFrameworkHub().getResourceManager().exportResource(res);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+
+		}
+
+		/*try {
+			for (Resource r : resources) {
+				if (!controller.getFrameworkHub().getResourceManager()
+						.getExportFilters(r).isEmpty()) {
+					controller.getFrameworkHub().getResourceManager()
+							.exportResource(r);
+				}
+			}
+		} catch (IOException e) {
+			// oops...
+			e.printStackTrace();
+		}*/
+
+
+	}
 
 	private void init(){
 		ArrayList<Transition> cutoff = statistiunf.getCutoff();
@@ -173,6 +245,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		return bpmncopia;	
 	}
 
+	/*for (Transition pn: localConfiguration.get()){
 			if (previousNode == null){
 				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
 				if (node== null){continue;}
@@ -241,39 +314,85 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			arcoDead.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
 			}*/
 
+
 	private void colorPath(LocalConfiguration localConfiguration, BPMNDiagram diagram) {
+		Petrinet unfolding = visualizeUnfoldingStatistics_Plugin.getUnfolding();
+		ArrayList<Place> listplace = Utility.getHistoryPlace(unfolding,localConfiguration.get().get(0));
+
+		Place start = Utility.getStartNode(unfolding);
+
+		ArrayList<Transition> listt = localConfiguration.get();
+		Transition last = listt.get(0);
+		List<PetrinetNode> ll  = new ArrayList<PetrinetNode>();
+
+		ll.addAll(listplace);
+		ll.addAll(listt);
 
 
+		WrapInt i = new WrapInt();
 
 
+		List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati  = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();
+		List<PetrinetNode> nodidiSincronizazione  = new ArrayList<PetrinetNode>();
+
+		path(ll,start,i,diagram,nodesVisitati,nodidiSincronizazione);
+		for (int j = 0; j < nodidiSincronizazione.size(); j++) {
+			path(ll,nodidiSincronizazione.get(j),i,diagram,nodesVisitati,nodidiSincronizazione);
+		}
 
 
+		Color colorlocal = mapLocalColor.get(localConfiguration);
+		if(colorlocal.equals(pal.getDeadColor())){
+			colorDeadArc(last,i,diagram);
+		}
 
 	}
 
+/*	private void colorDeadArc(LocalConfiguration localConfiguration, WrapInt i,BPMNDiagram diagram){
 		Transition deadTransition = localConfiguration.get().get(0);
 		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = deadTransition.getGraph().getOutEdges(deadTransition);
 		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge :edges ){
 			//Prendo il PetrinetNode bersaglio dell'arco
 			PetrinetNode target = edge.getTarget();
+			//	controllo se e' nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente 
 			for (PetrinetNodeMod u :statistiunf.getFlowMapBPtoPN().keySet()){
 				if (u.getLabel()==target.getLabel()){
 					List<BPMNEdge<BPMNNode, BPMNNode>> archiBPMN = statistiunf.getFlowMapBPtoPN().get(u);
 					i.value++;
+					//		prendo l'arco BPMN della rete clonata
+
 					for (BPMNEdge<BPMNNode, BPMNNode> arcoBPMN :archiBPMN){
+						AbstractGraphElement arcoDead = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, arcoBPMN);
+						arcoDead.getAttributeMap().put(AttributeMap.LABEL, i.print());
+						arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());							
+					}	
+				}
 			}
+
 		}	
 	}
+*/
 	private void colorDeadArc(Transition t, WrapInt i,BPMNDiagram diagram){
 		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = t.getGraph().getOutEdges(t);
 		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge :edges ){
 			//Prendo il PetrinetNode bersaglio dell'arco
 			PetrinetNode target = edge.getTarget();
+			List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(target));         
+			if(noded!=null){
 				for (BPMNEdge<BPMNNode, BPMNNode> arcoBPMN :noded){
 
+					BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, arcoBPMN);
+
+					i.value++;
+					to.getAttributeMap().put(AttributeMap.LABEL, i.print());
+					to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
+					//to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
+					to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());	
 				}
+			}
 		}
 	}
+
 	private void path(List<PetrinetNode> ll, PetrinetNode start, WrapInt i, BPMNDiagram diagram, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati, List<PetrinetNode> nodidiSincronizazione) {
 		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = start.getGraph().getOutEdges(start);
 		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge : edges){
@@ -290,8 +409,32 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 	}
 
+	private void rec (BPMNDiagram diagram, PetrinetNode nod,WrapInt num, List<BPMNEdge<BPMNNode, BPMNNode>> nodesVisitati){
+		BPMNNode node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,nod);
+		BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(diagram, node);
+		if (clonato != null){
+			clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
+		}
 
 
+		List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(nod));
+
+		if(noded!=null){
+			for (  BPMNEdge<BPMNNode, BPMNNode> n :noded){
+				if(!nodesVisitati.contains(n)){
+					BPMNEdge<BPMNNode, BPMNNode> to = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, n);
+
+					to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
+					to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
+					to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
+					num.value++;
+					to.getAttributeMap().put(AttributeMap.LABEL, num.value.toString());
+					nodesVisitati.add(n);
+
+				}
+			}
+		}
+	}
 
 
 
@@ -425,6 +568,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 					break;}
 				case 1: {
 					if (e.getClickCount()==1){
+						pc = paintConf(localConf,reverseMap);
 						visualizeUnfoldingStatistics_Plugin.repaint(false,pc);}
 				}
 				}	
