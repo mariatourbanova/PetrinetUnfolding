@@ -102,7 +102,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	private Palette pal = new Palette();
 	private UIPluginContext context;
 	private BPMNDiagram pc;
-	//	private ArrayList<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> archi = new ArrayList<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>>();
 
 
 	public TabTraceUnfodingPanel(UIPluginContext context, ScalableViewPanel panel, String panelName,
@@ -180,11 +179,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 	private void export() {
 
 		String name = pc.getLabel();
-//		BPMNDiagram d = visualizeUnfoldingStatistics_Plugin.getBpmncopia();
 		ProvidedObjectHelper.publish(context, name, pc, BPMNDiagram.class, false);
-
-		//ProvidedObjectHelper.raise(context, d);
-
 
 		final GlobalContext gconetxt = context.getGlobalContext();
 		if(gconetxt instanceof UIContext){
@@ -202,24 +197,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 					e.printStackTrace();
 				}
 			}
-
-
 		}
-
-		/*try {
-			for (Resource r : resources) {
-				if (!controller.getFrameworkHub().getResourceManager()
-						.getExportFilters(r).isEmpty()) {
-					controller.getFrameworkHub().getResourceManager()
-							.exportResource(r);
-				}
-			}
-		} catch (IOException e) {
-			// oops...
-			e.printStackTrace();
-		}*/
-
-
 	}
 
 	private void init(){
@@ -238,81 +216,11 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		BPMNDiagram bpmnoriginal = visualizeUnfoldingStatistics_Plugin.getOriginalBpmn();
 		CloneBPMN bpmncopia = new CloneBPMN(bpmnoriginal.getLabel());
 		bpmncopia.cloneFrom(bpmnoriginal);
-
-
-		//List<PetrinetNode> path = extractPathFromLocalConfigurtation(localConfiguration,visualizeUnfoldingStatistics_Plugin.getUnfolding());
 		colorPath(localConfiguration, bpmncopia);
 		return bpmncopia;	
 	}
 
-	/*for (Transition pn: localConfiguration.get()){
-			if (previousNode == null){
-				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
-				if (node== null){continue;}
-				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
-				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
-				}
 
-				Color c = mapLocalColor.get(localConfiguration);
-
-				if(c.equals(pal.getDeadColor())){
-					Prendo l'arco uscenti dal pn dell'unfolding
-					Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = pn.getGraph().getOutEdges(pn);
-					for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>   edge :edges ){
-						Prendo il PetrinetNode bersaglio dell'arco
-						PetrinetNode target = edge.getTarget();
-						controllo se e' nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente 
-						for (PetrinetNodeMod u :statistiunf.getFlowMapBPtoPN().keySet()){
-							if (u.getLabel()==target.getLabel()){
-								BPMNEdge<BPMNNode, BPMNNode> arcoBPMN = statistiunf.getFlowMapBPtoPN().get(u);
-								prendo l'arco BPMN della rete clonata
-								arcoDead = visualizeUnfoldingStatistics_Plugin.getArcInClone(bpmncopia, arcoBPMN);
-								arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());							
-							}
-						}
-
-						}
-
-				}
-
-				previousNode = clonato;
-			}
-			else{
-				node = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap,pn);
-				BPMNNode clonato = visualizeUnfoldingStatistics_Plugin.getNodeinClone(bpmncopia, node);
-				if (clonato != null){
-					clonato.getAttributeMap().put(AttributeMap.FILLCOLOR, pal.getLocalConfigurationColor());
-				}
-				//archi entranti in previousNode, uscenti in clonato
-				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> previousNodeEdges = bpmncopia.getInEdges(previousNode);
-				Collection<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> clonatoEdges = bpmncopia.getOutEdges(clonato);
-				for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> from : previousNodeEdges){
-					for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> to : clonatoEdges){
-						if (to.getEdgeID() == from.getEdgeID()){							
-							to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getLocalConfigurationColor());
-							to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
-							to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
-							archi.add(to);
-							break;
-						}
-					}
-				}
-				previousNode = clonato;
-			}
-		}
-		Integer max = archi.size();
-		Integer arcDead = archi.size() +1;
-		for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> a : archi){
-			a.getAttributeMap().put(AttributeMap.LABEL, max.toString());
-			max--;	
-		}
-
-		if(arcoDead != null){
-			arcoDead.getAttributeMap().put(AttributeMap.LABEL, arcDead.toString());
-			arcoDead.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcDeadLabel());
-			arcoDead.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
-			}*/
 
 
 	private void colorPath(LocalConfiguration localConfiguration, BPMNDiagram diagram) {
@@ -348,36 +256,12 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 	}
 
-/*	private void colorDeadArc(LocalConfiguration localConfiguration, WrapInt i,BPMNDiagram diagram){
-		Transition deadTransition = localConfiguration.get().get(0);
-		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = deadTransition.getGraph().getOutEdges(deadTransition);
-		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge :edges ){
-			//Prendo il PetrinetNode bersaglio dell'arco
-			PetrinetNode target = edge.getTarget();
-			//	controllo se e' nella FlowMapBPtoPN per ottenere l'arco BPMN corrispondente 
-			for (PetrinetNodeMod u :statistiunf.getFlowMapBPtoPN().keySet()){
-				if (u.getLabel()==target.getLabel()){
-					List<BPMNEdge<BPMNNode, BPMNNode>> archiBPMN = statistiunf.getFlowMapBPtoPN().get(u);
-					i.value++;
-					//		prendo l'arco BPMN della rete clonata
-
-					for (BPMNEdge<BPMNNode, BPMNNode> arcoBPMN :archiBPMN){
-						AbstractGraphElement arcoDead = visualizeUnfoldingStatistics_Plugin.getArcInClone(diagram, arcoBPMN);
-						arcoDead.getAttributeMap().put(AttributeMap.LABEL, i.print());
-						arcoDead.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());							
-					}	
-				}
-			}
-
-		}	
-	}
-*/
 	private void colorDeadArc(Transition t, WrapInt i,BPMNDiagram diagram){
 		Collection<PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> edges = t.getGraph().getOutEdges(t);
 		for(PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode> edge :edges ){
 			//Prendo il PetrinetNode bersaglio dell'arco
 			PetrinetNode target = edge.getTarget();
-			List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(target));         
+			List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getflowMapPNtoBP().get(new PetrinetNodeMod(target));         
 			if(noded!=null){
 				for (BPMNEdge<BPMNNode, BPMNNode> arcoBPMN :noded){
 
@@ -386,7 +270,6 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 					i.value++;
 					to.getAttributeMap().put(AttributeMap.LABEL, i.print());
 					to.getAttributeMap().put(AttributeMap.LINEWIDTH, 3.0f);
-					//to.getAttributeMap().put(AttributeMap.LABELCOLOR, pal.getArcLabelColor());
 					to.getAttributeMap().put(AttributeMap.EDGECOLOR, pal.getArcDead());	
 				}
 			}
@@ -417,7 +300,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		}
 
 
-		List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getFlowMapBPtoPN().get(new PetrinetNodeMod(nod));
+		List<BPMNEdge<BPMNNode, BPMNNode>> noded = statistiunf.getflowMapPNtoBP().get(new PetrinetNodeMod(nod));
 
 		if(noded!=null){
 			for (  BPMNEdge<BPMNNode, BPMNNode> n :noded){

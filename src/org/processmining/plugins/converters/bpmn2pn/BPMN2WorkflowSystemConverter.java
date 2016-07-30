@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.util.collection.AbstractMultiSet;
 import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
 import org.processmining.models.graphbased.NodeID;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
@@ -29,7 +27,6 @@ import org.processmining.models.graphbased.directed.bpmn.elements.Swimlane;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetEdge;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetNode;
-import org.processmining.models.graphbased.directed.petrinet.elements.Arc;
 import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory;
@@ -64,7 +61,7 @@ public class BPMN2WorkflowSystemConverter
 
 
 	/* Maps each place to BPMN control-flow edge   */
-	private Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> flowMapBPtoPN = new HashMap<PetrinetNodeMod,List< BPMNEdge<BPMNNode, BPMNNode>>>();
+	private Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> flowMapPNtoBP = new HashMap<PetrinetNodeMod,List< BPMNEdge<BPMNNode, BPMNNode>>>();
 
 
 	
@@ -112,22 +109,17 @@ public class BPMN2WorkflowSystemConverter
 			Place p = net.addPlace(f.getSource().getLabel()+"_"+f.getTarget().getLabel()+"_"+f.getLabel());
 			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
 			 PetrinetNodeMod x = new PetrinetNodeMod(p);			 
-			 if(flowMapBPtoPN.containsKey(p)){				
-				 flowMapBPtoPN.get(x).add(f);
+			 if(flowMapPNtoBP.containsKey(p)){				
+				 flowMapPNtoBP.get(x).add(f);
 				 }
 				 else { 
 				List<BPMNEdge<BPMNNode, BPMNNode>> ledge = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();	 
 				ledge.add(f);
-				flowMapBPtoPN.put(x,ledge);
+				flowMapPNtoBP.put(x,ledge);
 				 }
 			
 				flowMap.put(f, p);
 			}
-			
-//			else	
-	//			flowMapBPtoPN.get(x).add((BPMNEdge<BPMNNode, BPMNNode>) f);
-	//			flowMapBPtoPN.get(new PetrinetNodeMod(p)).put((BPMNEdge<BPMNNode, BPMNNode>) f);
-			
 		}
 	
 
@@ -141,13 +133,13 @@ public class BPMN2WorkflowSystemConverter
 			Place p = net.addPlace("interface_" + f.getSource().getLabel()+"_"+f.getTarget().getLabel()+"_"+f.getLabel());
 			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
 			PetrinetNodeMod x = new PetrinetNodeMod(p);			 
-			 if(flowMapBPtoPN.containsKey(x)){				
-				 flowMapBPtoPN.get(x).add(f);
+			 if(flowMapPNtoBP.containsKey(x)){				
+				 flowMapPNtoBP.get(x).add(f);
 				 }
 				 else { 
 				List<BPMNEdge<BPMNNode, BPMNNode>> ledge = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();	 
 				ledge.add(f);
-				flowMapBPtoPN.put(x,ledge);
+				flowMapPNtoBP.put(x,ledge);
 				 }		
 				flowMap.put(f, p);
 
@@ -194,7 +186,6 @@ public class BPMN2WorkflowSystemConverter
 		net.addArc(p, t);
 		
 		/* Save each pool its input */
-		//if(e.getParentPool()!=null)
 		if(e.getGraph().getInEdges(e).isEmpty()){
 		startEventMap.get(e.getParentPool().getId()).add(p);
 		}else{
@@ -554,30 +545,19 @@ public class BPMN2WorkflowSystemConverter
 					net.addArc(src, (Transition)targetT);
 					net.removeArc(p, targetT);
 					PetrinetNodeMod x = new PetrinetNodeMod(targetT);			 
-					 if(flowMapBPtoPN.containsKey(x)){				
-						 flowMapBPtoPN.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
+					 if(flowMapPNtoBP.containsKey(x)){				
+						 flowMapPNtoBP.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
 						 }
 						 else { 
 						List<BPMNEdge<BPMNNode, BPMNNode>> ledge = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();	 
 						ledge.add((BPMNEdge<BPMNNode, BPMNNode>)f);
-						flowMapBPtoPN.put(x,ledge);
+						flowMapPNtoBP.put(x,ledge);
 						 }
-//					if(!flowMapBPtoPN.containsKey(new PetrinetNodeMod(targetT))){
-//						List<BPMNEdge<BPMNNode, BPMNNode>> ledge = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();
-//						ledge.add((BPMNEdge<BPMNNode, BPMNNode>) f);
-//						flowMapBPtoPN.put(new PetrinetNodeMod(targetT),ledge);
-//					}
-//					else	
-//						flowMapBPtoPN.get(new PetrinetNodeMod(targetT)).add((BPMNEdge<BPMNNode, BPMNNode>) f);
-//					flowMapBPtoPN.put(new PetrinetNodeMod(targetT),(BPMNEdge<BPMNNode, BPMNNode>) f);
-
-					
 				}
 				net.removePlace(p);
 				flowMap.remove(f);
 				
 				
-				//flowMapBPtoPN.put(new PetrinetNodeMod(src),(BPMNEdge<BPMNNode, BPMNNode>)f);
 				PetrinetNodeMod d = new PetrinetNodeMod(src);
 				reverseMap.put(d, g);
 				flowMap.put((Flow) f, src);
@@ -596,15 +576,14 @@ public class BPMN2WorkflowSystemConverter
 					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
 					PetrinetNodeMod x = new PetrinetNodeMod(t,f.getAttributeMap().get("Original id").toString());
 					
-					if(flowMapBPtoPN.containsKey(x)){				
-						 flowMapBPtoPN.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
+					if(flowMapPNtoBP.containsKey(x)){				
+						flowMapPNtoBP.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
 						 }
 						 else { 
 						List<BPMNEdge<BPMNNode, BPMNNode>> ledge = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();	 
 						ledge.add((BPMNEdge<BPMNNode, BPMNNode>)f);
-						flowMapBPtoPN.put(x,ledge);
+						flowMapPNtoBP.put(x,ledge);
 						 }			
-					//flowMapBPtoPN.put(new PetrinetNodeMod(t),(BPMNEdge<BPMNNode, BPMNNode>) f);
 					
 					
 					reverseMap.put(new PetrinetNodeMod(t), g);
@@ -623,19 +602,14 @@ public class BPMN2WorkflowSystemConverter
 					
 					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
 					PetrinetNodeMod x = new PetrinetNodeMod(t,f.getAttributeMap().get("Original id").toString());
-				//	flowMapBPtoPN.put(x,(List<BPMNEdge<BPMNNode, BPMNNode>>) f);
-					if(flowMapBPtoPN.containsKey(x)){				
-						 flowMapBPtoPN.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
+					if(flowMapPNtoBP.containsKey(x)){				
+						flowMapPNtoBP.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
 						 }
 						 else { 
 						List<BPMNEdge<BPMNNode, BPMNNode>> ledge = new ArrayList<BPMNEdge<BPMNNode, BPMNNode>>();	 
 						ledge.add((BPMNEdge<BPMNNode, BPMNNode>)f);
-						flowMapBPtoPN.put(x,ledge);
-						 }
-					//controllare	
-					//flowMapBPtoPN.put(new PetrinetNodeMod(t),(BPMNEdge<BPMNNode, BPMNNode>) f);
-					
-					reverseMap.put(new PetrinetNodeMod(t), g);
+						flowMapPNtoBP.put(x,ledge);
+						 }					reverseMap.put(new PetrinetNodeMod(t), g);
 					net.addArc(p, t);
 					net.addArc(t, flowMap.get(f));
 					nodeMap.get(g).add(t);
@@ -912,8 +886,8 @@ public class BPMN2WorkflowSystemConverter
 		return reverseMap;
 	}
 	
-	public Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> getFlowMapBPtoPN() {
-		return flowMapBPtoPN;
+	public Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> getFlowMapPNtoBP() {
+		return flowMapPNtoBP;
 	}
 
 	public void printReverseMap(){

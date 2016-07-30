@@ -85,7 +85,7 @@ public class BPMN2Unfolding_Plugin
 			
 			StatisticMap stm = (StatisticMap)unfolding[1];
 			stm.setReverseMap(bpmn2Petrinet.getReverseMap());
-			stm.setFlowMap(bpmn2Petrinet.getFlowMapBPtoPN());
+			stm.setFlowMap(bpmn2Petrinet.getFlowMapPNtoBP());
 			context.addConnection(new BCSUnfoldingConnection(stm, petrinet,(Petrinet) unfolding[0],bpmn, local));
 			printstatistic(context,bpmn,petrinet, (Petrinet)unfolding[0]);
 
