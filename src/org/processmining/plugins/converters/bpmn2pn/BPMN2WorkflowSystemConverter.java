@@ -238,7 +238,14 @@ public class BPMN2WorkflowSystemConverter
 		net.addArc(t, p);
 
 		/* Save each pool its output */
-		endEventMap.get(e.getParentPool().getId()).add(p);
+		if(e.getGraph().getOutEdges(e).isEmpty()){
+			endEventMap.get(e.getParentPool().getId()).add(p);
+			}else{
+				endEventMap.remove(e.getParentPool().getId());
+				net.removeArc(p, t);
+				net.removePlace(p);
+				
+			}
 
 		// Connect transition to place of outgoing edge
 		for (BPMNEdge<?, ?> f : bpmn.getOutEdges(e)) 
