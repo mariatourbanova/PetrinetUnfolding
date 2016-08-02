@@ -431,13 +431,25 @@ public class BPMN2WorkflowSystemConverter
 			// Default case of atomic task
 			nodeSet.add(t_act);
 		}
-
+		int i = 0;
 		// Connect transition to place of incoming edge
+		Place p=null;
 		for (BPMNEdge<?, ?> f : bpmn.getInEdges(a)) 
 		{
-			if (f instanceof Flow) 
-			{
-				net.addArc(flowMap.get(f), t_start);
+			
+			if (f instanceof Flow)
+			{	
+				if(i==0){
+					p= flowMap.get(f);
+					net.addArc(p, t_start);
+				}else{
+					if(p!=null){
+					 Transition	t = net.addTransition("merging");
+					 net.addArc(t, p);
+					 net.addArc(flowMap.get(f), t);
+					}
+				}
+				i++;
 			}
 			if (f instanceof MessageFlow) 
 			{
