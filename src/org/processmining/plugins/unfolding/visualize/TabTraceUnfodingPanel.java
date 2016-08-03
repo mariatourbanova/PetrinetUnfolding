@@ -14,7 +14,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,6 +71,7 @@ import org.processmining.support.unfolding.Utility;
 import com.fluxicon.slickerbox.components.AutoFocusButton;
 import com.fluxicon.slickerbox.factory.SlickerDecorator;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
+import com.google.common.io.FileWriteMode;
 
 class WrapInt{
 	Integer value = 0;
@@ -156,7 +162,7 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 
 		inspector.addReset("Reset", button2);
 
-		JButton button3 = new AutoFocusButton("Export");
+/*		JButton button3 = new AutoFocusButton("Export");
 		button3.setOpaque(false);
 		button3.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		button3.addActionListener(new ActionListener() {
@@ -164,18 +170,45 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 			@Override
 			public void actionPerformed(ActionEvent arg0) {				
 				export();
+			}
+		}
+				);
+*/
 
+		JButton button4 = new AutoFocusButton("Export BPMN Diagram");
+		button4.setOpaque(false);
+		button4.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		button4.addActionListener(new ActionListener() {
 
-
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				export();
 			}
 		}
 				);
 
-		inspector.addExport("Export", button3);
+		inspector.addExport("Export BPMN Diagram", button4);
 
+		JButton button5 = new AutoFocusButton("Export Statistic");
+		button5.setOpaque(false);
+		button5.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		button5.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				exportStat();
+			}
+		}
+				);
+		
+		inspector.addExportStat("Export Stat", button5);
+		
 		return comprisePanel;
 	}
 
+	
+	
+	
 	private void export() {
 
 		String name = pc.getLabel();
@@ -198,6 +231,32 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 				}
 			}
 		}
+	}
+	
+	private void exportStat(){
+		FileWriter fWriter = null;
+		BufferedWriter writer = null;
+		String fileName = null;
+
+		try{
+			
+			if (visualizeUnfoldingStatistics_Plugin.getOriginalBpmn().getLabel() != null)
+			fileName = System.getProperty("user.home")+"/" +visualizeUnfoldingStatistics_Plugin.getOriginalBpmn().getLabel()+"_statistic.html";
+			else
+			fileName = System.getProperty("user.home")+"/statistic.html";
+
+			fWriter = new FileWriter(fileName);
+			writer = new BufferedWriter(fWriter);
+			System.out.println("creando il file");
+
+			String s = statistiunf.getStatisticBPMN();
+			writer.write(s);
+			writer.close();
+
+		}catch(Exception e){
+			System.out.println("Non si può creare il file");
+		}
+		
 	}
 
 	private void init(){
@@ -609,6 +668,8 @@ public class TabTraceUnfodingPanel extends JPanel implements MouseListener, Mous
 		return 0;				
 	}
 
+	
+	
 
 }
 

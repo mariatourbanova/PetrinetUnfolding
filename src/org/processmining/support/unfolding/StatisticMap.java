@@ -44,7 +44,7 @@ import java.util.Map;
 		private int nArcsBPMN = 0, nGateway = 0, nActivity = 0,
 				nEvents = 0, nMessageFlow = 0, nPool =0;
 
-		
+		private String statBPMN = "";
 		/* Maps each place to BPMN control-flow edge   */
 		private Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> flowMapPNtoBP;
 		
@@ -587,7 +587,7 @@ import java.util.Map;
 			out += "<li>Number of pool: " + nPool + "</li>";
 			out += "<li>Soundness: " + isSound + "</li>";
 			out += "<li>Weak soundness: " + isWeakSound + "</li></ul></html>";
-
+			statBPMN = out;
 			return out;
 		}
 
@@ -600,6 +600,12 @@ import java.util.Map;
 
 		public Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> getflowMapPNtoBP() {
 			return flowMapPNtoBP;
+		}
+
+
+		public String getStatisticBPMN() {
+			// TODO Auto-generated method stub
+			return statBPMN;
 		}
 		
 		

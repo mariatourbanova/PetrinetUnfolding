@@ -1,15 +1,23 @@
 package org.processmining.plugins.unfolding;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.accessibility.AccessibleComponent;
+import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
+import org.hamcrest.core.IsInstanceOf;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.contexts.uitopia.annotations.Visualizer;
@@ -26,6 +34,7 @@ import org.processmining.models.jgraph.ProMJGraphVisualizer;
 import org.processmining.models.jgraph.visualization.ProMJGraphPanel;
 import org.processmining.plugins.unfolding.visualize.StringPanel;
 import org.processmining.plugins.unfolding.visualize.TabTraceUnfodingPanel;
+import org.processmining.support.localconfiguration.LocalConfiguration;
 import org.processmining.support.localconfiguration.LocalConfigurationMap;
 import org.processmining.support.unfolding.LegendBCSUnfolding;
 import org.processmining.support.unfolding.LegendPetrinet;
@@ -164,7 +173,49 @@ public class MyBCSUnfoldingVisualizePlugin {
 			LegendPetrinet legendPanelP = new LegendPetrinet (unfoldingPanel, "Legend");
 			unfoldingPanel.addViewInteractionPanel(legendPanelP, SwingConstants.EAST);
 			panel.add(unfoldingPanel, "0,1");
+			unfoldingPanel.addMouseListener( new MouseListener() {
+			
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					// TODO Auto-generated method stub
 
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					// TODO Auto-generated method stub
+					System.out.println("prova entered");
+					
+				}
+
+
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+						System.out.println("prova click");
+						Object clicked = e.getSource();
+						if  (clicked instanceof Transition){
+							BPMNNode target = reverseMap.get(clicked);
+							BPMNNode border = getNodeinClone(bpmncopia, target);
+							border.getAttributeMap().put(AttributeMap.STROKECOLOR, Color.RED);
+						}
+
+				}
+
+			});
+		
 			/*Costruisco il ViewInteraction pannello delle statistiche*/
 			StringPanel sp = new StringPanel(unfoldingPanel, "Statistic Unfolding", output.getStatistic());
 			unfoldingPanel.addViewInteractionPanel(sp, SwingConstants.SOUTH);
