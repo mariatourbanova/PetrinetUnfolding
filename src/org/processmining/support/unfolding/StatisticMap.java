@@ -530,9 +530,12 @@ import java.util.Map;
 								for(Transition t: get(key))
 									if (!(t.getLabel().equals("reset") || t.getLabel().equals("to") || t.getLabel().equals("ti"))){
 										element++;
-										String l = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t).getLabel();
-										temp += "<li>" + l + "</li>";
-										}							
+										BPMNNode n = UtilitiesforMapping.getBPMNNodeFromReverseMap(reverseMap, t);
+										if (n!=null){											
+										String l = n.getLabel();
+										temp += "<li>" + l + "</li>"; 
+										}
+										else System.out.println(t.getLabel() + " non trovato in ReverseMap");}							
 								switch(element){
 									case 0:{out += "The graph does not contain deadlock points<BR><BR>"; break;}
 									case 1:{out += "The graph contains " + element + " deadlock point:<ol>"; 

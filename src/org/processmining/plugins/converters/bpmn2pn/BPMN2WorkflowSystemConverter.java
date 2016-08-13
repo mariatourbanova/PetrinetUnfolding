@@ -33,6 +33,16 @@ import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactor
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.unfolding.PetrinetNodeMod;
 
+class WrapInt{
+	Integer value = 0;
+	
+	String print(){
+		return value.toString();
+	}
+}
+
+
+
 /**
  * Convert a model BPMN in a Worflow System
  *
@@ -62,23 +72,23 @@ public class BPMN2WorkflowSystemConverter
 
 	/* Maps each place to BPMN control-flow edge   */
 	private Map<PetrinetNodeMod, List<BPMNEdge<BPMNNode, BPMNNode>>> flowMapPNtoBP = new HashMap<PetrinetNodeMod,List< BPMNEdge<BPMNNode, BPMNNode>>>();
-
-
-	
 	
 	/* Maps each BPMN node to a set of Petri net nodes (transitions and places) */
 	private Map<BPMNNode, Set<PetrinetNode>> nodeMap = new HashMap<BPMNNode, Set<PetrinetNode>>();
 	
 	/*Maps Petri net node to BPMN node*/
 	private Map<PetrinetNodeMod,BPMNNode> reverseMap = new HashMap<PetrinetNodeMod,BPMNNode>();
+
+	WrapInt i = new WrapInt();
+	
 	
 	public BPMN2WorkflowSystemConverter(BPMNDiagram bpmn) 
 	{
 		this.bpmn = bpmn;	
 		this.net = PetrinetFactory.newPetrinet("Petri net from " + bpmn.getLabel());
 		this.m = new Marking();
-
 		/* Initialize each nodeID with his arraylist */
+		
 		for (Swimlane s : bpmn.getPools()) 
 		{
 			startEventMap.put(s.getId(), new ArrayList <Place>());
@@ -88,6 +98,7 @@ public class BPMN2WorkflowSystemConverter
 
 	public boolean convert(PluginContext context) 
 	{
+		i.value = 	bpmn.getGraph().getNodes().size() + bpmn.getGraph().getEdges().size();
 		/* Traslate BPMN to Petri net */
 		translateEdges();
 		translateMessageFlows();
@@ -107,8 +118,11 @@ public class BPMN2WorkflowSystemConverter
 		for (Flow f : bpmn.getFlows()) 
 		{
 			Place p = net.addPlace(f.getSource().getLabel()+"_"+f.getTarget().getLabel()+"_"+f.getLabel());
-			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
-			 PetrinetNodeMod x = new PetrinetNodeMod(p);			 
+			if (f.getAttributeMap().get("Original id") != null){
+			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));}
+			else {p.getAttributeMap().put("Original id", i.print()); i.value++;}
+			
+			PetrinetNodeMod x = new PetrinetNodeMod(p);			 
 			 if(flowMapPNtoBP.containsKey(p)){				
 				 flowMapPNtoBP.get(x).add(f);
 				 }
@@ -131,7 +145,10 @@ public class BPMN2WorkflowSystemConverter
 		for (MessageFlow f : bpmn.getMessageFlows()) 
 		{
 			Place p = net.addPlace("interface_" + f.getSource().getLabel()+"_"+f.getTarget().getLabel()+"_"+f.getLabel());
-			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));
+			if (f.getAttributeMap().get("Original id") != null){
+			p.getAttributeMap().put("Original id", f.getAttributeMap().get("Original id"));}
+			else {p.getAttributeMap().put("Original id", i.print()); i.value++;}
+
 			PetrinetNodeMod x = new PetrinetNodeMod(p);			 
 			 if(flowMapPNtoBP.containsKey(x)){				
 				 flowMapPNtoBP.get(x).add(f);
@@ -177,11 +194,18 @@ public class BPMN2WorkflowSystemConverter
 	 * @param e the event
 	 */
 	private void translateStartEvent(Event e) 
-	{
+	{	//if (e.getLabel()=="" || e.getLabel() == null)System.out.println("Start event senza label");
 		Place p = net.addPlace("p_start_" + e.getLabel());
 		Transition t = net.addTransition("t_start_"+e.getLabel());
-		p.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
-		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
+		if (e.getAttributeMap().get("Original id") != null){
+		p.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));}
+		else {p.getAttributeMap().put("Original id", i.print()); i.value++;}
+
+		if (e.getAttributeMap().get("Original id") != null){
+		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));}
+		else {t.getAttributeMap().put("Original id", i.print()); i.value++;}
+
+//		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
 		reverseMap.put(new PetrinetNodeMod(t), e);
 		net.addArc(p, t);
 		
@@ -230,10 +254,17 @@ public class BPMN2WorkflowSystemConverter
 	 * @param e the event
 	 */
 	private void translateEndEvent(Event e) {
+		//if (e.getLabel()=="" || e.getLabel() == null)System.out.println("end event senza label");
+
 		Place p = net.addPlace("p_end_"+e.getLabel());
 		Transition t = net.addTransition("t_end_"+e.getLabel());
-		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
-		
+//		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
+		if (e.getAttributeMap().get("Original id") != null){
+		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));		
+		}
+		else {t.getAttributeMap().put("Original id", i.print());
+		e.getAttributeMap().put("Original id", i.print()); i.value++;}
+	
 		reverseMap.put(new PetrinetNodeMod(t), e);
 		net.addArc(t, p);
 
@@ -281,15 +312,23 @@ public class BPMN2WorkflowSystemConverter
 	 * @param e the event
 	 */
 	private void translateIntermediateEvent(Event e) 
-	{
+	{	
+		//if (e.getLabel().equals("") || e.getLabel() == null)System.out.println("Intermediate event senza label");
+		//else System.out.println("Label presente: " + e.getLabel());
+		//System.out.println("nuova label" + e.getEventType() + "-" + e.getEventTrigger() + "-"+e.getEventUse());
 		if (e.getEventTrigger() == EventTrigger.COMPENSATION)
 			warnings.add("This translation does not support compensation events and does not preserve compensation semantics.\n The resulting Petri net should not be used for soundness chedcking.");
 
 		String attachedActivity = (e.getBoundingNode() != null ? "_"+e.getBoundingNode().getLabel() : "");
 		Transition t = net.addTransition("t_ev_"+e.getEventTrigger().name()+"_"+e.getLabel()+attachedActivity);
-		reverseMap.put(new PetrinetNodeMod(t), e);
-		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
 		
+//		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));
+		if (e.getAttributeMap().get("Original id") != null){
+		t.getAttributeMap().put("Original id", e.getAttributeMap().get("Original id"));}
+		else {t.getAttributeMap().put("Original id", i.print());
+			e.getAttributeMap().put("Original id", i.print());
+		i.value++;}
+		reverseMap.put(new PetrinetNodeMod(t), e);
 		// Connect transition to place of outgoing edge
 		for (BPMNEdge<?, ?> f : bpmn.getOutEdges(e)) 
 		{
@@ -347,7 +386,12 @@ public class BPMN2WorkflowSystemConverter
 		Transition t_end = null;
 		Place p_ready = null;
 		Place p_finished = null;
-		t_act.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+		//t_act.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+		if (a.getAttributeMap().get("Original id") != null){
+			t_act.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));}
+		else {t_act.getAttributeMap().put("Original id", i.print()); 
+				a.getAttributeMap().put("Original id", i.print());	i.value++;}
+
 		reverseMap.put(new PetrinetNodeMod(t_act), a);
 		// Create atomic or structured activity
 		boolean model_structured = !translateActivityAtomic(a);
@@ -357,8 +401,16 @@ public class BPMN2WorkflowSystemConverter
 			t_end = net.addTransition("t_act_"+a.getLabel()+"_complete");
 			p_ready = net.addPlace("p_act_"+a.getLabel()+"_ready");
 			p_finished = net.addPlace("p_act_"+a.getLabel()+"_finished");
-			t_start.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
-			t_end.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+			//t_start.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+			if (a.getAttributeMap().get("Original id") != null){
+				t_start.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+				t_end.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));}
+
+			else { a.getAttributeMap().put("Original id", i.print());
+				  t_start.getAttributeMap().put("Original id", i.print());
+				  t_end.getAttributeMap().put("Original id",  i.print()); i.value++;
+			}
+
 			reverseMap.put(new PetrinetNodeMod(t_start), a);
 			reverseMap.put(new PetrinetNodeMod(t_end), a);
 			// Connect start/end with activity
@@ -382,7 +434,10 @@ public class BPMN2WorkflowSystemConverter
 			if (a.isBLooped()) 
 			{
 				Transition t_repeat = net.addTransition("t_act_"+a.getLabel()+"_repeat");
-				t_repeat.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));
+				if (a.getAttributeMap().get("Original id") != null){
+					t_repeat.getAttributeMap().put("Original id", a.getAttributeMap().get("Original id"));}
+				else {a.getAttributeMap().put("Original id", i.print());
+						t_repeat.getAttributeMap().put("Original id", i.print()); i.value++;}
 				reverseMap.put(new PetrinetNodeMod(t_repeat), a);
 
 				// Loop back
@@ -546,6 +601,9 @@ public class BPMN2WorkflowSystemConverter
 	 */
 	private void translateXORGateway(Gateway g) 
 	{	
+		//if (g.getLabel().equals("") || g.getLabel() == null)System.out.println("XOR senza label");
+		//else System.out.println("Label presente: " + g.getLabel());
+
 		boolean convering= bpmn.getInEdges(g).size()>1;
 		boolean eventbased =g.getGatewayType().equals(GatewayType.EVENTBASED);
 		if((!convering)&eventbased){
@@ -576,7 +634,7 @@ public class BPMN2WorkflowSystemConverter
 				net.removePlace(p);
 				flowMap.remove(f);
 				
-				
+				//gatewayid
 				PetrinetNodeMod d = new PetrinetNodeMod(src);
 				reverseMap.put(d, g);
 				flowMap.put((Flow) f, src);
@@ -585,14 +643,21 @@ public class BPMN2WorkflowSystemConverter
 		}else{
 			Place p = net.addPlace("g_xor_"+g.getLabel());
 			setNodeMapFor(nodeMap, g, p);
-			p.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+			if (g.getAttributeMap().get("Original id") != null){
+				p.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));}
+			else {p.getAttributeMap().put("Original id", i.print()); i.value++;}
 			// Connect transition to place of incoming edge
 			for (BPMNEdge<?, ?> f : bpmn.getInEdges(g)) 
 			{
 				if (f instanceof Flow) 
 				{
 					Transition t = net.addTransition(f.getSource().getLabel()+"_merge_"+g.getLabel());
-					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+					//t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+					if (g.getAttributeMap().get("Original id") != null){
+						t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));}
+					else {g.getAttributeMap().put("Original id", i.print());
+							t.getAttributeMap().put("Original id", i.print()); i.value++;}
+					
 					PetrinetNodeMod x = new PetrinetNodeMod(t,f.getAttributeMap().get("Original id").toString());
 					
 					if(flowMapPNtoBP.containsKey(x)){				
@@ -619,7 +684,11 @@ public class BPMN2WorkflowSystemConverter
 				{
 					Transition t = net.addTransition(f.getTarget().getLabel()+"_split_"+g.getLabel());
 					
-					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+					//t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+					if (g.getAttributeMap().get("Original id") != null){
+						t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));}
+					else{g.getAttributeMap().put("Original id", i.print());
+						t.getAttributeMap().put("Original id", i.print()); i.value++;}
 					PetrinetNodeMod x = new PetrinetNodeMod(t,f.getAttributeMap().get("Original id").toString());
 					if(flowMapPNtoBP.containsKey(x)){				
 						flowMapPNtoBP.get(x).add((BPMNEdge<BPMNNode, BPMNNode>)f);
@@ -643,9 +712,14 @@ public class BPMN2WorkflowSystemConverter
 	 * @param g the gateway
 	 */
 	private void translateANDGateway(Gateway g) 
-	{
+	{  		//if (g.getLabel().equals("") || g.getLabel() == null)System.out.println("AND senza label");
+			//else System.out.println("Label presente: " + g.getLabel());
+
 		Transition t = net.addTransition("g_and_"+g.getLabel());
-		t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+		if (g.getAttributeMap().get("Original id") != null){
+			t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));}
+		else {g.getAttributeMap().put("Original id", i.print());
+			t.getAttributeMap().put("Original id", i.print()); i.value++;}
 		reverseMap.put(new PetrinetNodeMod(t), g);
 		setNodeMapFor(nodeMap, g, t);
 
@@ -675,7 +749,9 @@ public class BPMN2WorkflowSystemConverter
 	 * @param g the gateway
 	 */
 	private void translateORGateway(Gateway g) 
-	{	
+	{		//	if (g.getLabel().equals("") || g.getLabel() == null)System.out.println("OR senza label");
+			//else System.out.println("Label presente: " + g.getLabel());
+
 		Set<PetrinetNode> nodeSet = new HashSet<PetrinetNode>();
 		nodeMap.put(g, nodeSet);
 
@@ -712,10 +788,10 @@ public class BPMN2WorkflowSystemConverter
 			}
 
 			// Then compute all subsets by counting to 2^n and using the bitmask of the number to tell which places to include in the subset
-			for(int i = 0; i < (1<<n); i++){
+			for(int k = 0; k < (1<<n); k++){
 				List<Place> p_subset = new ArrayList<Place>();
 				for(int j = 0; j < n; j++){
-					if( ((i>>j) & 1) == 1) { 	// bit j is on
+					if( ((k>>j) & 1) == 1) { 	// bit j is on
 						p_subset.add(p_ins[j]);// add place
 					}
 				}
@@ -724,7 +800,11 @@ public class BPMN2WorkflowSystemConverter
 
 				// Create transition for this subset and connect it to the post-places in the subset
 				Transition t = net.addTransition("g_ior_join_"+g.getLabel()+"_"+i);
-				t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+				//t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+				if (g.getAttributeMap().get("Original id") != null){
+					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));}
+				else {g.getAttributeMap().put("Original id", i.print());
+						t.getAttributeMap().put("Original id", i.print()); i.value++;}
 				reverseMap.put(new PetrinetNodeMod(t), g);
 				nodeSet.add(t);
 				for (Place p_in : p_subset) 
@@ -762,12 +842,12 @@ public class BPMN2WorkflowSystemConverter
 			}
 
 			// Then compute all subsets by counting to 2^n and using the bitmask of the number to tell which places to include in the subset
-			for(int i = 0; i < (1<<n); i++)
+			for(int k = 0; k < (1<<n); k++)
 			{
 				List<Place> p_subset = new ArrayList<Place>();
 				for(int j = 0; j < n; j++)
 				{
-					if( ((i>>j) & 1) == 1) 
+					if( ((k>>j) & 1) == 1) 
 					{ 	// Bit j is on
 						p_subset.add(p_outs[j]);// add place
 					}
@@ -777,7 +857,10 @@ public class BPMN2WorkflowSystemConverter
 
 				// Create transition for this subset and connect it to the post-places in the subset
 				Transition t = net.addTransition("g_ior_split_"+g.getLabel()+"_"+i);
-				t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));
+				if (g.getAttributeMap().get("Original id") != null){
+					t.getAttributeMap().put("Original id", g.getAttributeMap().get("Original id"));}
+				else {g.getAttributeMap().put("Original id", i.print());
+					t.getAttributeMap().put("Original id", i.print()); i.value++;}
 				nodeSet.add(t);
 				reverseMap.put(new PetrinetNodeMod(t), g);
 				for (Place p_out : p_subset) 
@@ -844,7 +927,6 @@ public class BPMN2WorkflowSystemConverter
 		net.addArc(i, ti);
 		net.addArc(to,o);
 		m.add(i);
-
 		// link the places and transitions
 		for (Place pi : input)
 			net.addArc(ti, pi);
