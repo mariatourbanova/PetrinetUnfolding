@@ -98,6 +98,7 @@ public class MyBCSUnfoldingVisualizePlugin {
 				repaint( true,bpmncopia);
 			
 			}catch (Exception e) {
+				e.printStackTrace();
 				bpmn = null;
 				paintwithoutbpmn();
 			}
@@ -243,8 +244,8 @@ public class MyBCSUnfoldingVisualizePlugin {
 		return petrinet;
 	}
 
-	public BPMNNode getNodeinClone(BPMNDiagram bpmn,BPMNNode node){
-		Set<BPMNNode> elenco = bpmn.getNodes();
+	public BPMNNode getNodeinClone(BPMNDiagram bpmnclone,BPMNNode node){
+		Set<BPMNNode> elenco = bpmnclone.getNodes();
 		if(node!=null)
 			for(BPMNNode nodeclone: elenco){
 				Object idoc = nodeclone.getAttributeMap().get("Original id");
@@ -330,10 +331,6 @@ public class MyBCSUnfoldingVisualizePlugin {
 	
 	public void createPath(PetrinetNode pn, Petrinet petrinet, ArrayList<PetrinetNode> path){
 
-		//path.add(pn);
-	//	PetrinetNode i = in.getSource();		
-		
-//		if (pn.getGraph().getInEdges(pn).size() > 1){
 		 for (Iterator<?> preset = petrinet.getGraph().getInEdges(pn).iterator(); preset.hasNext();) 
 			{
 			 	path.add(pn);
