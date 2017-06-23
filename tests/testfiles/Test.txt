@@ -1,0 +1,11 @@
+print("Starting example script: BPMN to PN...");
+String testFileRoot = System.getProperty("user.dir") + "/tests/testfiles/PN/tesi";
+String name = testFileRoot+"/StudenteProfessoreEsteso.pnml";
+print(name);
+pn = import_petri_net_from_pnml_file(name);
+
+result = bcs_petri_net_to_unfolding_net(pn[0]);
+
+
+
+print(result[0]);

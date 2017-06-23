@@ -215,8 +215,7 @@ public class BCSUnfolding
 					for(Combination comb : combination)
 					{
 						
-						
-						/* Aggiungo t2 all'unfolding il quale sarà collagato con le piazze che lo abilitano */
+						/* Aggiungo t2 all'unfolding il quale sarà collegato con le piazze che lo abilitano */
 						Transition t3 = unfolding.addTransition(t2.getLabel());
 						t3.getAttributeMap().put("Original id",id);		
 						for(int i = 0; i < comb.getElements().size(); i++)
@@ -514,7 +513,5 @@ public class BCSUnfolding
 	public LocalConfigurationMap getLocalConfigurationMap() {
 		return localConfigurationMap;
 	}
-	
-	
 	
 }

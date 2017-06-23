@@ -1,0 +1,16 @@
+print("Starting example script: BPMN to PN...");
+String testFileRoot = System.getProperty("user.dir") + "/tests/testfiles/BPMN/tesi";
+String name = testFileRoot+"/caso_2.bpmn";
+print(name);
+
+
+bpmn = import_bpmn_model_from_bpmn_2_0_file(name);
+
+// Converto il modello in Petrinet ed eseguo lunfolding
+bpmn_diagram = select_bpmn_diagram(bpmn);
+
+result = bcs_bpmn_to_unfolding_net(bpmn_diagram);
+
+
+
+print(result);

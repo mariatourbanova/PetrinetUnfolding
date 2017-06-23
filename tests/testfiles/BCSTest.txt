@@ -1,0 +1,112 @@
+print("Starting example script: BPMN to PN...");
+String testFileRoot = "/Users/MariaTourbanova/Desktop/modellibpmn/SignavioBpmnAccademyModels/"; //cartella con i bpmn
+String exportFileRoot = System.getProperty("user.dir") + "/tests/testfiles/pn"; //output per le reti di petri
+
+
+File folder = new File(testFileRoot);
+print(folder);
+File[] listOfFiles = folder.listFiles();
+print(listOfFiles);
+java.util.ArrayList arryfilesbroken = new java.util.ArrayList();
+arryfilesbroken.add("BCSFileproblem: ");
+java.util.ArrayList nonleggibili = new java.util.ArrayList();
+nonleggibili.add("NonLeggibili: ");
+java.util.ArrayList filenotworkflow = new java.util.ArrayList();
+ filenotworkflow.add("Filenotworkflow: ");
+String array = "";
+int okkk=0;
+ele:
+for (File file : listOfFiles) {
+        if (file.isFile()) {
+                String ext = file.getName().substring(file.getName().lastIndexOf('.'));
+                String name = file.getName().substring(0,file.getName().lastIndexOf('.'));
+                if(ext.equals(".bpmn")){
+						boolean flag = true;
+                        print("--------******-----------");
+                        print(file.getName());
+                        // Carico il modello BPMN
+                        try{
+                        bpmn = import_bpmn_model_from_bpmn_2_0_file(testFileRoot + "/" + file.getName());
+						
+                        // seleziono il modello bpmn
+                        bpmn_diagram = select_bpmn_diagram(bpmn);
+                        }catch(Exception e){
+                        
+                        nonleggibili.add(file.getName());
+                        continue ele;
+                        }
+                        
+                        
+                        // Converto il modello in Petrinet ed eseguo lunfolding
+                       
+                 		       res = bcs_bpmn_to_petri_net(bpmn_diagram);
+                         
+                       
+                        if(!res[1].isEmpty() ){
+                        	 print(res[1]);
+							filenotworkflow.add(file.getName());
+							continue ele;
+						}
+						print("----OK---");	
+		/*					
+			 System.out.println("Visualize");
+javax.swing.JComponent comp = _0_visualize_petri_net(res[0]);//visualize_bpmn(bpmn_diagram);//_0_visualize_petri_net(res[0]);
+javax.swing.JFrame frame = new javax.swing.JFrame();
+frame.add(comp);
+frame.setSize(800,800);
+frame.setVisible(true);
+                        java.lang.Thread.sleep(15000);*/
+                        	
+                     try{
+                        result = bcs_bpmn_to_unfolding_net(bpmn_diagram);
+
+                        print("+++++++++++++++++++++++++");
+                        print(file.getName());
+                        //stampo statistiche
+                        String bp =  bpmn_diagram.getNodes().size()+"/"+ bpmn_diagram.getFlows().size()+"/"+bpmn_diagram.getMessageFlows().size();
+                        String message = "BPMN Node/Flow/MFow: "+ bp;
+                        print(message);
+                        int nArcs = 0;
+                        for(org.processmining.models.graphbased.directed.petrinet.elements.Place p : result[2].getPlaces()){
+                                nArcs += result[2].getGraph().getInEdges(p).size() + result[2].getGraph().getOutEdges(p).size();
+                        }
+                        String p =  result[2].getTransitions().size()+"/"+ result[2].getPlaces().size()+"/"+ nArcs;
+                        message = "Petri Net T/P/A: "+ p;
+                        print(message);
+                        nArcs = 0;
+                        for(org.processmining.models.graphbased.directed.petrinet.elements.Place p : result[1].getPlaces()){
+                                nArcs += result[1].getGraph().getInEdges(p).size() + result[1].getGraph().getOutEdges(p).size();
+                        }
+                        String u = result[1].getTransitions().size()+"/"+ result[1].getPlaces().size()+"/"+ nArcs;
+                        message = "Unfolding Net T/P/A: "+ u;
+                        print(message);
+                        print("+++++++++++++++++++++++++");
+                        //stampo risultato unfoldings
+                        
+                                                //stampo risultato unfoldings
+                        String y = file.getName()+"|"+bp+"|"+"|"+p+"|"+u+"|";
+                        String k = result[0].getCLIstat() +"\n";
+                        print(k);
+                        array += y+k;
+                        okkk+=1;
+                       
+                       
+                       // File export = new File(exportFileRoot + "/"+name+".pnml");
+                       // pnml_export_petri_net_(result[2], export);
+                        print("--------******-----------");
+                        }catch(Exception e){ 
+                        arryfilesbroken.add(file.getName());
+                       
+                        }
+                        
+                }
+        }
+}
+print(array);
+print(okkk);
+print(nonleggibili);
+print(nonleggibili.size());
+print(filenotworkflow);
+print(filenotworkflow.size());
+print(arryfilesbroken);
+print(arryfilesbroken.size());

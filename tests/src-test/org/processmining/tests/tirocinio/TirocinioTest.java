@@ -12,25 +12,33 @@ public class TirocinioTest extends TestCase
    * 
    * @throws Throwable
    */
-  @Test
+	/*@Test
   public void testTirocinio1() throws Throwable 
   {
     String args[] = new String[] {"-l"};
     CLI.main(args);
-  }
+  }*/
   
   /**
    * Test che verifica la validita' dei plugin e li esegue utilizzando un file di test
    * 
    * @throws Throwable
    */
-  @Test
+  /* @Test
   public void testTirocinio2() throws Throwable 
   {
     String testFileRoot = System.getProperty("test.testFileRoot", "./tests/testfiles");
     String args[] = new String[] {"-f", testFileRoot+"/performance_Test.txt"};
     CLI.main(args);
-  }
+  }*/
+  
+  public void testTirocinio3() throws Throwable 
+  {
+	    String testFileRoot = System.getProperty("test.testFileRoot", "./tests/testfiles");
+	    String args[] = new String[] {"-f", testFileRoot+"/BCSTest.txt"};
+	    CLI.main(args);
+	  }
+  
   
   /**
    * MAIN: esegue uno dei due test
