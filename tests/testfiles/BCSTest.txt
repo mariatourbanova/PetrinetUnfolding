@@ -1,5 +1,5 @@
 print("Starting example script: BPMN to PN...");
-String testFileRoot = "/Users/MariaTourbanova/Desktop/modellibpmn/SignavioBpmnAccademyModels/"; //cartella con i bpmn
+String testFileRoot = "/Users/MariaTourbanova/Desktop/modellibpmn/SignavioBpmnAccademyModelsM/"; //cartella con i bpmn
 String exportFileRoot = System.getProperty("user.dir") + "/tests/testfiles/pn"; //output per le reti di petri
 
 
@@ -8,11 +8,11 @@ print(folder);
 File[] listOfFiles = folder.listFiles();
 print(listOfFiles);
 java.util.ArrayList arryfilesbroken = new java.util.ArrayList();
-arryfilesbroken.add("BCSFileproblem: ");
+//arryfilesbroken.add("BCSFileproblem: ");
 java.util.ArrayList nonleggibili = new java.util.ArrayList();
-nonleggibili.add("NonLeggibili: ");
+//nonleggibili.add("NonLeggibili: ");
 java.util.ArrayList filenotworkflow = new java.util.ArrayList();
- filenotworkflow.add("Filenotworkflow: ");
+// filenotworkflow.add("Filenotworkflow: ");
 String array = "";
 int okkk=0;
 ele:
@@ -32,8 +32,8 @@ for (File file : listOfFiles) {
                         bpmn_diagram = select_bpmn_diagram(bpmn);
                         }catch(Exception e){
                         
-                        nonleggibili.add(file.getName());
-                        continue ele;
+                       // nonleggibili.add(file.getName());
+                       // continue ele;
                         }
                         
                         
@@ -45,6 +45,7 @@ for (File file : listOfFiles) {
                         if(!res[1].isEmpty() ){
                         	 print(res[1]);
 							filenotworkflow.add(file.getName());
+							print("salto");
 							continue ele;
 						}
 						print("----OK---");	
@@ -74,10 +75,11 @@ frame.setVisible(true);
                         message = "Petri Net T/P/A: "+ p;
                         print(message);
                         nArcs = 0;
-                        for(org.processmining.models.graphbased.directed.petrinet.elements.Place p : result[1].getPlaces()){
-                                nArcs += result[1].getGraph().getInEdges(p).size() + result[1].getGraph().getOutEdges(p).size();
-                        }
-                        String u = result[1].getTransitions().size()+"/"+ result[1].getPlaces().size()+"/"+ nArcs;
+                        
+                        edges =  result[1].getEdges();
+               
+                        
+                        String u = result[1].getTransitions().size()+"/"+ result[1].getPlaces().size()+"/"+ edges.size();
                         message = "Unfolding Net T/P/A: "+ u;
                         print(message);
                         print("+++++++++++++++++++++++++");
@@ -102,6 +104,10 @@ frame.setVisible(true);
                 }
         }
 }
+
+print("BCS PARALLEL");
+print("node, flow, Mflow, t_petri, p_petri, a_petri, t_unf, p_unf, a_unf, time, numCutoff, numDead, numDeadlock, bounded, weakSound,sound");
+
 print(array);
 print(okkk);
 print(nonleggibili);

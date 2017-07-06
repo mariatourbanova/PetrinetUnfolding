@@ -39,7 +39,6 @@ public class BCSSettimoUnfolding {
 	protected Place i, o;
 	protected Transition reset;
 
-
 	/*
 	 * Mappa ogni nodo della rete di Petri ad un uno o più nodi della rete di
 	 * unfolding
@@ -103,7 +102,7 @@ public class BCSSettimoUnfolding {
 
 		start(i, i1);
 
-	//	System.out.println("FINE");
+		// System.out.println("FINE");
 
 		/* Estraggo i deadlock ed effettuo le statistiche della rete */
 		writeLog(context, "Extraction of the dealock points...");
@@ -128,7 +127,7 @@ public class BCSSettimoUnfolding {
 		Thread aRunnable = new Thread() {
 
 			public void run() {
-			//	System.out.println("pi " + indexPi);
+				// System.out.println("pi " + indexPi);
 				Place pi = (Place) indexPi.getNode();
 				Place p = (Place) unf2PetriMap.get(pi);
 
@@ -164,16 +163,16 @@ public class BCSSettimoUnfolding {
 					}
 
 					if (!presetIncompleto) {
-						
-					//	System.out.println(possibleCombination);
+
+						// System.out.println(possibleCombination);
 
 						/* Crea le combinazioni e filtra quelle già usate */
 						combination = new ArrayList<Combination>(sizeCombination);
 						Combination.create(possibleCombination, combination);
 						// System.out.println(possibleCombination);
-
-						Combination.filter(combination, (Transition) t, petri2UnfMap, unfolding);
-
+						synchronized (unfolding) {
+							Combination.filter(combination, (Transition) t, petri2UnfMap, unfolding);
+						}
 						String id = "";
 						try {
 							id = t.getAttributeMap().get("Original id").toString();
@@ -231,7 +230,7 @@ public class BCSSettimoUnfolding {
 					}
 				}
 				decrementNumThread();
-			//	System.out.println("FINE thread");
+				// System.out.println("FINE thread");
 			}
 
 		};
@@ -309,7 +308,6 @@ public class BCSSettimoUnfolding {
 
 		/* Inserisco le altre statistiche */
 		statisticMap.setStatistic(petrinet, unfolding, petri2UnfMap, localConfigurationMap);
-
 	}
 
 	/**
@@ -439,7 +437,9 @@ public class BCSSettimoUnfolding {
 	private synchronized void refreshCorrispondence(PetrinetNode pn, PetrinetNode pn1) {
 		/* Aggiorno le map delle corrispondenze */
 		if (!petri2UnfMap.containsKey(pn))
-			petri2UnfMap.put(pn, new CopyOnWriteArrayList<PetrinetNode>());    //.put(pn, new CopyOnWriteArrayList<PetrinetNode>());
+			petri2UnfMap.put(pn, new CopyOnWriteArrayList<PetrinetNode>()); // .put(pn,
+																			// new
+																			// CopyOnWriteArrayList<PetrinetNode>());
 		petri2UnfMap.get(pn).add(pn1);
 		unf2PetriMap.put(pn1, pn);
 

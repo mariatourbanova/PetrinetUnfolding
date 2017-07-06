@@ -396,7 +396,6 @@ public class StatisticMap extends HashMap<String, ArrayList <Transition>>
 		}
 		
 		String out = "",sound,Bounded,WeakSound = "";
-		 
 		sound  = isSound ? "True" : "False";
 		WeakSound = isWeakSound ? "True" : "False";
 		Bounded = isBounded  ? "True" : "False";
